@@ -1,0 +1,147 @@
+/* RESET SIMPLE */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* NAVBAR */
+header {
+    background: white;
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar {
+    max-width: 1200px;
+    margin: auto;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #6aa84f;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+}
+
+/* HERO */
+.hero {
+    height: 90vh;
+    background-image: url("img/hero.jpg");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding-top: 60px;
+}
+
+.hero-content h1 {
+    color: white;
+    font-size: 3rem;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+}
+
+.hero-content p {
+    color: white;
+    font-size: 1.2rem;
+    margin-top: 10px;
+    text-shadow: 1px 1px 6px rgba(0,0,0,0.5);
+}
+
+.btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 25px;
+    background: #6aa84f;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* SECTION TITLES */
+section h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* ABOUT */
+.about {
+    padding: 60px 20px;
+    max-width: 1000px;
+    margin: auto;
+    text-align: center;
+    color: #444;
+}
+
+/* SERVICES */
+.services {
+    padding: 60px 20px;
+    background: #f7f7f7;
+}
+
+.service-container {
+    max-width: 1100px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.service-box {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.service-box img {
+    width: 100%;
+    display: block;
+    border-radius: 8px;
+}
+
+.service-label {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 10px;
+    background: rgba(106, 168, 79, 0.8);
+    color: white;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* CONTACT */
+.contact {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+/* FOOTER */
+footer {
+    background: #333;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
