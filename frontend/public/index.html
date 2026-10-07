@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rosas de Guadalupe - Sistema de Gestión de Contrataciones</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../src/css/styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Navegación Superior -->
+    <header class="top-nav">
+      <div class="nav-brand">
+        <span class="brand-symbol">🌹</span>
+        <div class="brand-titles">
+          <h1>Rosas de Guadalupe</h1>
+          <p class="brand-tagline">Mariachi Femenino • Plataforma de Gestión y Reservas</p>
+        </div>
+      </div>
+      <div class="nav-status">
+        <span class="badge badge-team">6 Músicas en Escena</span>
+        <span id="api-status-badge" class="badge badge-api">Backend: Verificando...</span>
+      </div>
+    </header>
+
+    <!-- Contenedor Principal -->
+    <main class="main-container">
+      <!-- Panel de Cotización Interactiva -->
+      <section class="booking-section">
+        <div class="card card-form">
+          <div class="card-header">
+            <h2>Calculadora de Contratación & Reserva</h2>
+            <p>Selecciona el formato, duración y zona para generar tu cotización oficial y anticipo del 50%.</p>
+          </div>
+
+          <form id="quote-form" class="interactive-form">
+            <div class="form-group">
+              <label for="format-select">Formato Musical</label>
+              <select id="format-select" class="form-control">
+                <option value="2200" data-format="Serenata">Serenata Tradicional (45 min - 7-8 canciones)</option>
+                <option value="2800" data-format="1hora" selected>Show Estándar (1 Hora Completa)</option>
+                <option value="5200" data-format="2horas">Show Premium (2 Horas con Equipo de Audio)</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="duration-input">Duración adicional (Horas)</label>
+                <input type="number" id="duration-input" class="form-control" min="1" max="6" value="1" step="0.5">
+              </div>
+
+              <div class="form-group">
+                <label for="zone-select">Zona de Cobertura (Logística)</label>
+                <select id="zone-select" class="form-control">
+                  <option value="0" selected>Zona Centro / Urbana (Sin recargo)</option>
+                  <option value="250">Zona Norte / Periferia Cercana (+$250)</option>
+                  <option value="250">Zona Sur / Conurbada (+$250)</option>
+                  <option value="600">Zona Campestre / Foránea (+$600)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Método de Pago del Anticipo</label>
+              <div class="payment-methods-grid">
+                <label class="payment-card selected">
+                  <input type="radio" name="payment-method" value="TRANSFERENCIA" checked>
+                  <div class="method-info">
+                    <span class="method-title">Transferencia / SPEI</span>
+                    <span class="method-fee">0% comisión adicional</span>
+                  </div>
+                </label>
+                <label class="payment-card">
+                  <input type="radio" name="payment-method" value="TARJETA_CREDITO">
+                  <div class="method-info">
+                    <span class="method-title">Tarjeta Crédito / Débito</span>
+                    <span class="method-fee">+3.5% comisión pasarela</span>
+                  </div>
+                </label>
+                <label class="payment-card">
+                  <input type="radio" name="payment-method" value="EFECTIVO">
+                  <div class="method-info">
+                    <span class="method-title">Efectivo en Oficina</span>
+                    <span class="method-fee">Reserva física</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <button type="button" id="btn-recalculate" class="btn btn-primary">
+              Recalcular Presupuesto Oficial
+            </button>
+          </form>
+        </div>
+
+        <!-- Panel de Desglose Financiero -->
+        <div class="card card-summary">
+          <div class="card-header">
+            <h3>Desglose Financiero de Contratación</h3>
+            <span class="pill-policy">Política 50/50</span>
+          </div>
+
+          <div class="breakdown-list">
+            <div class="breakdown-row">
+              <span>Subtotal Presentación Musical:</span>
+              <strong id="summary-subtotal">$2,800.00</strong>
+            </div>
+            <div class="breakdown-row">
+              <span>Recargo Logístico / Traslado:</span>
+              <strong id="summary-logistics">$0.00</strong>
+            </div>
+            <div class="breakdown-row highlight">
+              <span>Presupuesto Total del Evento:</span>
+              <strong id="summary-total">$2,800.00</strong>
+            </div>
+            <hr class="divider">
+            <div class="breakdown-row alert-row">
+              <div>
+                <strong>Anticipo para Bloqueo de Fecha (50%):</strong>
+                <small class="block-hint">Requerido para apartar la agenda</small>
+              </div>
+              <strong id="summary-advance" class="text-gold">$1,400.00</strong>
+            </div>
+            <div class="breakdown-row">
+              <span>Comisión de Pasarela (si aplica):</span>
+              <strong id="summary-fee">$0.00</strong>
+            </div>
+            <div class="breakdown-row total-pay-now">
+              <span>Total a Liquidar Hoy (Anticipo):</span>
+              <span id="summary-pay-now" class="amount-large">$1,400.00</span>
+            </div>
+            <div class="breakdown-row settlement-row">
+              <span>Saldo Pendiente al Llegar al Evento (50%):</span>
+              <strong id="summary-balance">$1,400.00</strong>
+            </div>
+          </div>
+
+          <div class="summary-actions">
+            <button id="btn-proceed-booking" class="btn btn-accent full-width">
+              Continuar con la Reserva y Datos del Evento
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Información del Elenco de Músicas -->
+      <section class="ensemble-section">
+        <h3>Alineación Oficial del Mariachi (6 Integrantes)</h3>
+        <div class="ensemble-grid">
+          <div class="member-card">
+            <span class="member-icon">🎤</span>
+            <h4>Guadalupe Morales</h4>
+            <p>Directora Musical & Voz Principal</p>
+          </div>
+          <div class="member-card">
+            <span class="member-icon">🎵</span>
+            <h4>Sofía Ramírez</h4>
+            <p>Segunda Voz & Coros</p>
+          </div>
+          <div class="member-card">
+            <span class="member-icon">🎺</span>
+            <h4>Valeria Torres</h4>
+            <p>Primera Trompeta</p>
+          </div>
+          <div class="member-card">
+            <span class="member-icon">🎺</span>
+            <h4>Camila Herrera</h4>
+            <p>Segunda Trompeta</p>
+          </div>
+          <div class="member-card">
+            <span class="member-icon">🎸</span>
+            <h4>Daniela Castro</h4>
+            <p>Vihuela Tradicional</p>
+          </div>
+          <div class="member-card">
+            <span class="member-icon">🎻</span>
+            <h4>Mariana Domínguez</h4>
+            <p>Guitarrón</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p><strong>Rosas de Guadalupe Management System</strong> • Proyecto Jira: <code>RS</code> • Sprint Velocity: 20 SP</p>
+      <p class="copyright">Base de datos conectada a Oracle Database XE/Cloud. Todos los derechos reservados.</p>
+    </footer>
+  </div>
+
+  <script src="../src/js/app.js"></script>
+</body>
+</html>

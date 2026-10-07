@@ -1,0 +1,98 @@
+# ==============================================================================
+# .gitignore - Rosas de Guadalupe Management System
+# ==============================================================================
+
+# --- Entornos Virtuales y Dependencias de Python ---
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- Variables de Entorno y Secretos (Seguridad) ---
+.env
+.env.*
+!.env.example
+*.env
+secrets.json
+
+# --- Dependencias de Frontend y Node.js ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+/frontend/dist/
+/frontend/build/
+.cache/
+
+# --- Base de Datos Oracle y Conexiones Seguras ---
+# Logs de red y trazas del cliente Oracle
+sqlnet.log
+*.trc
+*.trm
+# Wallets y certificados Oracle Cloud ATP/ADW
+wallet/
+wallets/
+wallet_*.zip
+cwallet.sso
+ewallet.p12
+ojdl.log
+tnsnames.ora
+sqlnet.ora
+
+# --- Archivos de Configuración de IDEs y Editores ---
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.swp
+*.swo
+*~
+
+# --- Archivos de Registro y Caché (Logs & Cache) ---
+*.log
+logs/
+*.pid
+*.seed
+*.pid.lock
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Archivos del Sistema Operativo ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+[Dd]esktop.ini
