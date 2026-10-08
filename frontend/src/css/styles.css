@@ -418,6 +418,141 @@ label {
   color: var(--text-muted);
 }
 
+/* --- Info & Formats Section (RS-103) --- */
+.info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.info-intro {
+  background: linear-gradient(145deg, #241920 0%, #1a1317 100%);
+}
+
+.info-text {
+  color: var(--text-muted);
+  font-size: 0.98rem;
+}
+
+.feature-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 1.2rem;
+}
+
+.feature-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid var(--border-subtle);
+  color: var(--secondary-light);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+}
+
+.formats-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.formats-section h3 {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  color: var(--secondary-light);
+}
+
+.formats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.2rem;
+}
+
+.format-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  background: var(--bg-surface);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-md);
+  padding: 1.4rem;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.format-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-active);
+  box-shadow: var(--shadow-glow);
+}
+
+.format-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.format-icon {
+  font-size: 1.8rem;
+}
+
+.format-badge {
+  background: rgba(212, 175, 55, 0.15);
+  color: var(--secondary-light);
+  border: 1px solid var(--border-subtle);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+}
+
+.format-card h4 {
+  font-size: 1.05rem;
+  color: var(--text-main);
+}
+
+.format-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  flex-grow: 1;
+}
+
+.format-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  border-top: 1px dashed var(--border-subtle);
+  padding-top: 0.7rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.format-features li::before {
+  content: "✓ ";
+  color: var(--secondary-color);
+  font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .info-section .card {
+    padding: 1.4rem;
+  }
+
+  .format-card {
+    padding: 1.1rem;
+  }
+
+  .feature-chip {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 /* --- Footer --- */
 .app-footer {
   text-align: center;
