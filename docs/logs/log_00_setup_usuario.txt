@@ -1,0 +1,70 @@
+Windows PowerShell
+Copyright (C) Microsoft Corporation. Todos los derechos reservados.
+
+PS D:\rosas-de-guadalupe-rs> sqlplus / as sysdba
+
+SQL*Plus: Release 21.0.0.0.0 - Production on Wed Oct 7 18:23:00 2026
+Version 21.3.0.0.0
+
+Copyright (c) 1982, 2021, Oracle.  All rights reserved.
+
+Conectado a:
+Oracle Database 21c Express Edition Release 21.0.0.0.0 - Production
+Version 21.3.0.0.0
+
+SQL> ALTER SESSION SET CONTAINER = XEPDB1;
+
+Sesión modificada.
+
+SQL> CREATE USER ROSAS_ADMIN IDENTIFIED BY "Mariachi2026!";
+
+Usuario creado.
+
+SQL> GRANT CONNECT, RESOURCE, DBA TO ROSAS_ADMIN;
+
+Concesión terminada correctamente.
+
+SQL> ALTER USER ROSAS_ADMIN QUOTA UNLIMITED ON USERS;
+
+Usuario modificado.
+
+SQL> COMMIT;
+
+Confirmación terminada.
+
+SQL> -- Verificación de creación del usuario
+SQL> SELECT username, account_status, default_tablespace, TO_CHAR(created, 'YYYY-MM-DD HH24:MI:SS') AS fecha_creacion
+  2  FROM dba_users 
+  3  WHERE username = 'ROSAS_ADMIN';
+
+USERNAME        ACCOUNT_STATUS  DEFAULT_TABLESPACE   FECHA_CREACION
+--------------- --------------- -------------------- -------------------
+ROSAS_ADMIN     OPEN            USERS                2026-10-07 18:23:00
+
+SQL> -- Verificación de roles otorgados
+SQL> SELECT grantee, granted_role, admin_option, default_role 
+  2  FROM dba_role_privs 
+  3  WHERE grantee = 'ROSAS_ADMIN'
+  4  ORDER BY granted_role;
+
+GRANTEE         GRANTED_ROLE         ADMIN_OPTION DEFAULT_ROLE
+--------------- -------------------- ------------ ------------
+ROSAS_ADMIN     CONNECT              NO           YES
+ROSAS_ADMIN     DBA                  NO           YES
+ROSAS_ADMIN     RESOURCE             NO           YES
+
+SQL> -- Verificación de cuota de almacenamiento
+SQL> SELECT tablespace_name, 
+  2         CASE WHEN max_bytes = -1 THEN 'UNLIMITED' ELSE TO_CHAR(max_bytes) END AS cuota_almacenamiento
+  3  FROM dba_ts_quotas 
+  4  WHERE username = 'ROSAS_ADMIN';
+
+TABLESPACE_NAME      CUOTA_ALMACENAMIENTO
+-------------------- ----------------------------------------
+USERS                UNLIMITED
+
+SQL> EXIT;
+Desconectado de Oracle Database 21c Express Edition Release 21.0.0.0.0 - Production
+Version 21.3.0.0.0
+
+PS D:\rosas-de-guadalupe-rs> 

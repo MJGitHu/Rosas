@@ -20,12 +20,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const summaryPayNow = document.getElementById("summary-pay-now");
   const summaryBalance = document.getElementById("summary-balance");
 
-  const formatCurrency = (val) => {
-    return new Intl.NumberFormat("es-MX", {
-      style: "currency",
-      currency: "MXN",
-    }).format(val);
-  };
+  const formatearSoles = (monto) => new Intl.NumberFormat('es-PE', {
+    style: 'currency',
+    currency: 'PEN',
+    minimumFractionDigits: 2
+  }).format(monto);
 
   // Manejo de selección de método de pago
   paymentCards.forEach((card) => {
@@ -88,8 +87,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const balance = total - advance;
 
     let fee = 0;
-    if (paymentMethod === "TARJETA_CREDITO") {
-      fee = Math.round(advance * 0.035 * 100) / 100;
+    if (paymentMethod === "TARJETA_CREDITO" || paymentMethod === "TARJETA_DEBITO") {
+      fee = Math.round(advance * 0.05 * 100) / 100;
     }
 
     const payNow = advance + fee;
@@ -98,13 +97,13 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const updateUI = (subtotal, logistics, total, advance, fee, payNow, balance) => {
-    summarySubtotal.textContent = formatCurrency(subtotal);
-    summaryLogistics.textContent = formatCurrency(logistics);
-    summaryTotal.textContent = formatCurrency(total);
-    summaryAdvance.textContent = formatCurrency(advance);
-    summaryFee.textContent = formatCurrency(fee);
-    summaryPayNow.textContent = formatCurrency(payNow);
-    summaryBalance.textContent = formatCurrency(balance);
+    summarySubtotal.textContent = formatearSoles(subtotal);
+    summaryLogistics.textContent = formatearSoles(logistics);
+    summaryTotal.textContent = formatearSoles(total);
+    summaryAdvance.textContent = formatearSoles(advance);
+    summaryFee.textContent = formatearSoles(fee);
+    summaryPayNow.textContent = formatearSoles(payNow);
+    summaryBalance.textContent = formatearSoles(balance);
   };
 
   // Verificación de estado del Backend Flask

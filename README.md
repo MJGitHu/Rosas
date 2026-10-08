@@ -4,6 +4,13 @@ Plataforma web integral orientada a modernizar y digitalizar el ciclo comercial,
 
 ---
 
+## Gestión del Proyecto
+
+El proyecto se gestiona en Jira bajo la clave **RS**.  
+Enlace al tablero: https://upao-team-e2081s7v.atlassian.net/jira/software/projects/RS
+
+---
+
 ## Características Principales (Features)
 
 - **Selección Dinámica de Formato Musical**: Catálogo interactivo de servicios (Serenata Tradicional de 45 min, Show Estándar de 1 hora, Show Premium de 2 horas con amplificación).
@@ -12,7 +19,7 @@ Plataforma web integral orientada a modernizar y digitalizar el ciclo comercial,
 - **Gestión Financiera Escalonada (Regla 50/50)**:
   - Generación obligatoria del **Anticipo del 50%** para confirmar y bloquear la fecha en el calendario oficial.
   - Control del **Saldo Restante del 50%** a ser liquidado al arribo de la agrupación al evento.
-- **Desglose de Pasarelas y Comisiones**: Cálculo transparente de comisiones bancarias por pago con tarjeta de crédito/débito (+3.5%) vs. transferencias SPEI o efectivo (0%).
+- **Desglose de Pasarelas y Comisiones**: Cálculo transparente de comisiones bancarias por pago con tarjeta de crédito/débito (+5%) vs. transferencias SPEI o efectivo (0%).
 - **Multi-métodos de Pago**: Integración conceptual y registro para Transferencia/SPEI, Tarjetas Bancarias y Efectivo.
 - **Monitoreo de Elenco y Recursos**: Control de la asignación y disponibilidad de las 6 músicas que integran la agrupación.
 
@@ -119,6 +126,12 @@ Dado que el frontend está desacoplado y estructurado con estándares web nativo
     ```
   - Abre en tu navegador: `http://localhost:3000`
 
+### Ejecutar pruebas unitarias
+
+```bash
+pytest .testing/ -v
+```
+
 ---
 
 ## Estructura del Proyecto
@@ -149,12 +162,14 @@ rosas_de_guadalupe_mvp/
 ├── database/                      # Gestión de persistencia con Oracle Database
 │   ├── scripts/
 │   │   ├── 01_schema_ddl.sql      # Definición de tablas relacionales, llaves y constraints
-│   │   └── 02_seed_data.sql       # Catálogos maestros (las 6 integrantes, formatos, zonas)
+│   │   ├── 02_seed_data.sql       # Catálogos maestros (las 6 integrantes, formatos, zonas)
+│   │   └── 03_canciones_ddl.sql   # Repertorio musical, asignación N:M y estados de reserva
 │   ├── diagrams/                  # Diagramas entidad-relación (ERD) del modelo de datos
 │   └── conexion_oracle.md         # Manual paso a paso para conectar VS Code con Oracle DB
 │
 ├── docs/                          # Documentación técnica y metodológica
 │   ├── arquitectura.md            # Diagramas de capas y decisiones de diseño técnico
+│   ├── auditoria_repo.md          # Informe exhaustivo de auditoría técnica del repositorio
 │   └── metodologia_scrum.md       # Acuerdos de equipo, DoD y lineamientos de trabajo
 │
 ├── .gitignore                     # Exclusiones de Git (entornos virtuales, .env, temporales Oracle)
@@ -169,11 +184,11 @@ El proyecto es desarrollado y mantenido por un equipo ágil de 5 profesionales:
 
 | Nombre | Rol / Especialidad | Responsabilidad Principal |
 | :--- | :--- | :--- |
-| **[Nombre del Integrante 1]** | Tech Lead & Backend Developer | Arquitectura Flask, API REST y revisión de código |
-| **[Nombre del Integrante 2]** | Database Administrator / Oracle Specialist | Modelado relacional, optimización PL/SQL y DDLs |
-| **[Nombre del Integrante 3]** | Frontend Developer | Maquetación UI/UX, reactividad y experiencia de usuario |
-| **[Nombre del Integrante 4]** | Full-Stack Developer | Integración de pasarelas, cálculo de anticipos y servicios |
-| **[Nombre del Integrante 5]** | QA & Scrum Master | Automatización de pruebas, aseguramiento de DoD y ceremonias |
+| **[Nombre del Integrante 1]** <!-- TODO: reemplazar con nombre real --> | Tech Lead & Backend Developer | Arquitectura Flask, API REST y revisión de código |
+| **[Nombre del Integrante 2]** <!-- TODO: reemplazar con nombre real --> | Database Administrator / Oracle Specialist | Modelado relacional, optimización PL/SQL y DDLs |
+| **[Nombre del Integrante 3]** <!-- TODO: reemplazar con nombre real --> | Frontend Developer | Maquetación UI/UX, reactividad y experiencia de usuario |
+| **[Nombre del Integrante 4]** <!-- TODO: reemplazar con nombre real --> | Full-Stack Developer | Integración de pasarelas, cálculo de anticipos y servicios |
+| **[Nombre del Integrante 5]** <!-- TODO: reemplazar con nombre real --> | QA & Scrum Master | Automatización de pruebas, aseguramiento de DoD y ceremonias |
 
 ---
 

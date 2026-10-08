@@ -21,4 +21,5 @@ class Config:
 
     # Reglas de negocio
     ANTICIPO_PERCENTAGE = float(os.getenv("ANTICIPO_PERCENTAGE", 0.50))
-    COMISION_TARJETA_PERCENTAGE = float(os.getenv("COMISION_TARJETA_PERCENTAGE", 0.035))
+    COMISION_TARJETA = float(os.getenv("COMISION_TARJETA", 0.05))
+    COMISION_TARJETA_PERCENTAGE = float(os.getenv("COMISION_TARJETA_PERCENTAGE", 0.05))

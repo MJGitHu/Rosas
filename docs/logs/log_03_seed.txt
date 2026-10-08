@@ -1,0 +1,118 @@
+Windows PowerShell
+Copyright (C) Microsoft Corporation. Todos los derechos reservados.
+
+PS D:\rosas-de-guadalupe-rs> sqlplus ROSAS_ADMIN/Mariachi2026!@localhost:1521/XEPDB1 @database/scripts/02_seed_data.sql
+
+SQL*Plus: Release 21.0.0.0.0 - Production on Wed Oct 7 18:24:00 2026
+Version 21.3.0.0.0
+
+Copyright (c) 1982, 2021, Oracle.  All rights reserved.
+
+Conectado a:
+Oracle Database 21c Express Edition Release 21.0.0.0.0 - Production
+Version 21.3.0.0.0
+
+SQL> -- =============================================================================
+SQL> -- PROYECTO: Rosas de Guadalupe Management System
+SQL> -- SCRIPT: 02_seed_data.sql
+SQL> -- DESCRIPCION: Datos semilla iniciales (Integrantes, Formatos, Zonas de Cobertura)
+SQL> -- =============================================================================
+SQL> 
+SQL> -- 1. INTEGRANTES DEL GRUPO MUSICAL FEMENINO (6 Integrantes)
+SQL> INSERT INTO integrantes_mariachi (nombre_completo, instrumento_rol, es_lider, activo)
+  2  VALUES ('Guadalupe Morales', 'Directora Musical / Cantante Principal', 'S', 'S');
+
+1 fila creada.
+
+SQL> INSERT INTO integrantes_mariachi (nombre_completo, instrumento_rol, es_lider, activo)
+  2  VALUES ('Sofía Ramírez', 'Segunda Voz y Coros', 'N', 'S');
+
+1 fila creada.
+
+SQL> INSERT INTO integrantes_mariachi (nombre_completo, instrumento_rol, es_lider, activo)
+  2  VALUES ('Valeria Torres', 'Primera Trompeta', 'N', 'S');
+
+1 fila creada.
+
+SQL> INSERT INTO integrantes_mariachi (nombre_completo, instrumento_rol, es_lider, activo)
+  2  VALUES ('Camila Herrera', 'Segunda Trompeta', 'N', 'S');
+
+1 fila creada.
+
+SQL> INSERT INTO integrantes_mariachi (nombre_completo, instrumento_rol, es_lider, activo)
+  2  VALUES ('Daniela Castro', 'Vihuela Mexicana', 'N', 'S');
+
+1 fila creada.
+
+SQL> INSERT INTO integrantes_mariachi (nombre_completo, instrumento_rol, es_lider, activo)
+  2  VALUES ('Mariana Domínguez', 'Guitarrón', 'N', 'S');
+
+1 fila creada.
+
+SQL> 
+SQL> -- 2. FORMATOS MUSICALES
+SQL> INSERT INTO formatos_mariachi (nombre_formato, descripcion, num_musicos, precio_base_hora, incluye_equipo_audio, activo)
+  2  VALUES ('Serenata Tradicional (45 min)', 'Ideal para sorpresas de cumpleaños, reconciliación o aniversario (7 a 8 canciones)', 6, 2200.00, 'N', 'S');
+
+1 fila creada.
+
+SQL> INSERT INTO formatos_mariachi (nombre_formato, descripcion, num_musicos, precio_base_hora, incluye_equipo_audio, activo)
+  2  VALUES ('Show Completo 1 Hora', 'Presentación formal completa de 60 minutos con repertorio clásico y bailable', 6, 2800.00, 'N', 'S');
+
+1 fila creada.
+
+SQL> INSERT INTO formatos_mariachi (nombre_formato, descripcion, num_musicos, precio_base_hora, incluye_equipo_audio, activo)
+  2  VALUES ('Show Premium 2 Horas', 'Show de 2 horas continuas con equipo de audio profesional y microfonía inalámbrica', 6, 5200.00, 'S', 'S');
+
+1 fila creada.
+
+SQL> 
+SQL> -- 3. ZONAS DE COBERTURA Y RECARGOS LOGÍSTICOS
+SQL> INSERT INTO zonas_cobertura (nombre_zona, descripcion, recargo_transporte, tiempo_estimado_traslado_min, activo)
+  2  VALUES ('Zona Centro / Urbana', 'Centro cívico, distritos urbanos centrales de cobertura estándar', 0.00, 15, 'S');
+
+1 fila creada.
+
+SQL> INSERT INTO zonas_cobertura (nombre_zona, descripcion, recargo_transporte, tiempo_estimado_traslado_min, activo)
+  2  VALUES ('Zona Norte / Periferia Cercana', 'Distritos de la periferia norte con traslado medio', 250.00, 35, 'S');
+
+1 fila creada.
+
+SQL> INSERT INTO zonas_cobertura (nombre_zona, descripcion, recargo_transporte, tiempo_estimado_traslado_min, activo)
+  2  VALUES ('Zona Sur / Conurbada', 'Sectores del eje sur, condominios y zonas conurbadas', 250.00, 40, 'S');
+
+1 fila creada.
+
+SQL> INSERT INTO zonas_cobertura (nombre_zona, descripcion, recargo_transporte, tiempo_estimado_traslado_min, activo)
+  2  VALUES ('Zona Campestre / Foránea', 'Fincas, haciendas campestres o municipios aledaños de largo traslado', 600.00, 75, 'S');
+
+1 fila creada.
+
+SQL> COMMIT;
+
+Confirmación terminada.
+
+SQL> -- Verificación de registros cargados:
+SQL> SELECT 'ZONAS_COBERTURA: ' || COUNT(*) FROM zonas_cobertura;
+
+'ZONAS_COBERTURA:'||COUNT(*)
+---------------------------------------------------------
+ZONAS_COBERTURA: 4
+
+SQL> SELECT 'FORMATOS_MARIACHI: ' || COUNT(*) FROM formatos_mariachi;
+
+'FORMATOS_MARIACHI:'||COUNT(*)
+-----------------------------------------------------------
+FORMATOS_MARIACHI: 3
+
+SQL> SELECT 'INTEGRANTES_MARIACHI: ' || COUNT(*) FROM integrantes_mariachi;
+
+'INTEGRANTES_MARIACHI:'||COUNT(*)
+--------------------------------------------------------------
+INTEGRANTES_MARIACHI: 6
+
+SQL> EXIT;
+Desconectado de Oracle Database 21c Express Edition Release 21.0.0.0.0 - Production
+Version 21.3.0.0.0
+
+PS D:\rosas-de-guadalupe-rs> 

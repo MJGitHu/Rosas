@@ -1,0 +1,112 @@
+Windows PowerShell
+Copyright (C) Microsoft Corporation. Todos los derechos reservados.
+
+PS D:\rosas-de-guadalupe-rs> sqlplus ROSAS_ADMIN/Mariachi2026!@localhost:1521/XEPDB1 @database/scripts/04_pagos_ddl.sql
+
+SQL*Plus: Release 21.0.0.0.0 - Production on Wed Oct 7 18:24:34 2026
+Version 21.3.0.0.0
+
+Copyright (c) 1982, 2021, Oracle.  All rights reserved.
+
+Conectado a:
+Oracle Database 21c Express Edition Release 21.0.0.0.0 - Production
+Version 21.3.0.0.0
+
+SQL> -- =============================================================================
+SQL> -- PROYECTO: Rosas de Guadalupe Management System
+SQL> -- SUBTAREA JIRA: RS-137 - Diseñar modelo de pagos, anticipos y estados
+SQL> -- SCRIPT: 04_pagos_ddl.sql
+SQL> -- DESCRIPCIÓN: 1. Creación limpia de la tabla PAGOS según especificación RS-137.
+SQL> --              2. Creación de la tabla ANTICIPOS (relación 1:1 con eventos_reservas).
+SQL> -- AUTOR: Equipo de Desarrollo (Jira Project RS)
+SQL> -- =============================================================================
+SQL> 
+SQL> -- 1. TABLA: PAGOS (Esquema normalizado RS-137)
+SQL> BEGIN
+  2      EXECUTE IMMEDIATE 'DROP TABLE pagos CASCADE CONSTRAINTS';
+  3  EXCEPTION
+  4      WHEN OTHERS THEN
+  5          IF SQLCODE != -942 THEN RAISE; END IF;
+  6  END;
+  7  /
+
+Procedimiento PL/SQL terminado correctamente.
+
+SQL> CREATE TABLE pagos (
+  2      id_pago         NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  3      id_reserva      NUMBER NOT NULL,
+  4      monto           NUMBER(10,2) NOT NULL,
+  5      metodo_pago     VARCHAR2(30) NOT NULL,
+  6      comision        NUMBER(10,2) DEFAULT 0.00 NOT NULL,
+  7      num_operacion   VARCHAR2(100),
+  8      tipo_pago       VARCHAR2(20) NOT NULL,
+  9      fecha_pago      TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+ 10      CONSTRAINT fk_pago_reserva FOREIGN KEY (id_reserva) 
+ 11          REFERENCES eventos_reservas(id_reserva) ON DELETE CASCADE,
+ 12      CONSTRAINT chk_pago_tipo 
+ 13          CHECK (tipo_pago IN ('ANTICIPO', 'SALDO')),
+ 14      CONSTRAINT chk_pago_metodo 
+ 15          CHECK (metodo_pago IN ('EFECTIVO', 'YAPE', 'PLIN', 'TRANSFERENCIA', 'TARJETA_CREDITO', 'TARJETA_DEBITO'))
+ 16  );
+
+Tabla creada.
+
+SQL> 
+SQL> -- 2. TABLA: ANTICIPOS (Relación 1:1 con eventos_reservas)
+SQL> BEGIN
+  2      EXECUTE IMMEDIATE 'DROP TABLE anticipos CASCADE CONSTRAINTS';
+  3  EXCEPTION
+  4      WHEN OTHERS THEN
+  5          IF SQLCODE != -942 THEN RAISE; END IF;
+  6  END;
+  7  /
+
+Procedimiento PL/SQL terminado correctamente.
+
+SQL> CREATE TABLE anticipos (
+  2      id_anticipo         NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  3      id_reserva          NUMBER NOT NULL,
+  4      monto_anticipo      NUMBER(10,2) NOT NULL,
+  5      monto_saldo         NUMBER(10,2) NOT NULL,
+  6      porcentaje          NUMBER(5,2) DEFAULT 50.00 NOT NULL,
+  7      fecha_limite_saldo  DATE NOT NULL,
+  8      estado              VARCHAR2(30) DEFAULT 'PENDIENTE' NOT NULL,
+  9      fecha_creacion      TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+ 10      CONSTRAINT fk_anticipos_reserva FOREIGN KEY (id_reserva) 
+ 11          REFERENCES eventos_reservas(id_reserva) ON DELETE CASCADE,
+ 12      CONSTRAINT uq_anticipos_reserva UNIQUE (id_reserva),
+ 13      CONSTRAINT chk_anticipo_estado 
+ 14          CHECK (estado IN ('PENDIENTE', 'PAGADO', 'VENCIDO', 'REEMBOLSADO'))
+ 15  );
+
+Tabla creada.
+
+SQL> DESC pagos;
+ Nombre                                                                            ¿Nulo?   Tipo
+ --------------------------------------------------------------------------------- -------- --------------------------------------------------------
+ ID_PAGO                                                                           NOT NULL NUMBER
+ ID_RESERVA                                                                        NOT NULL NUMBER
+ MONTO                                                                             NOT NULL NUMBER(10,2)
+ METODO_PAGO                                                                       NOT NULL VARCHAR2(30)
+ COMISION                                                                          NOT NULL NUMBER(10,2)
+ NUM_OPERACION                                                                              VARCHAR2(100)
+ TIPO_PAGO                                                                         NOT NULL VARCHAR2(20)
+ FECHA_PAGO                                                                        NOT NULL TIMESTAMP(6)
+
+SQL> DESC anticipos;
+ Nombre                                                                            ¿Nulo?   Tipo
+ --------------------------------------------------------------------------------- -------- --------------------------------------------------------
+ ID_ANTICIPO                                                                       NOT NULL NUMBER
+ ID_RESERVA                                                                        NOT NULL NUMBER
+ MONTO_ANTICIPO                                                                    NOT NULL NUMBER(10,2)
+ MONTO_SALDO                                                                       NOT NULL NUMBER(10,2)
+ PORCENTAJE                                                                        NOT NULL NUMBER(5,2)
+ FECHA_LIMITE_SALDO                                                                NOT NULL DATE
+ ESTADO                                                                            NOT NULL VARCHAR2(30)
+ FECHA_CREACION                                                                    NOT NULL TIMESTAMP(6)
+
+SQL> EXIT;
+Desconectado de Oracle Database 21c Express Edition Release 21.0.0.0.0 - Production
+Version 21.3.0.0.0
+
+PS D:\rosas-de-guadalupe-rs> 

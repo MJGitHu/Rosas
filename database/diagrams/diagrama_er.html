@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagrama ER - Rosas de Guadalupe Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #0F060B;
+      --bg-card: #1A0D15;
+      --bg-surface: #24121E;
+      --border-color: rgba(229, 193, 88, 0.25);
+      --gold: #E5C158;
+      --gold-hover: #F2D57E;
+      --rose: #D4385E;
+      --rose-glow: rgba(212, 56, 94, 0.3);
+      --text-main: #FFFFFF;
+      --text-muted: #D1B5C4;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: radial-gradient(circle at top center, #260E1C 0%, var(--bg-dark) 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 2rem 1.5rem;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .brand-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4rem;
+      color: var(--gold);
+      letter-spacing: 0.5px;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+    }
+
+    .brand-subtitle {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+    }
+
+    .meta-badges {
+      display: flex;
+      gap: 0.8rem;
+      justify-content: center;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      background: rgba(229, 193, 88, 0.1);
+      border: 1px solid var(--border-color);
+      color: var(--gold);
+    }
+
+    .badge-rose {
+      background: rgba(212, 56, 94, 0.12);
+      border-color: rgba(212, 56, 94, 0.3);
+      color: #FF8BA7;
+    }
+
+    .diagram-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+      padding: 1.5rem;
+      margin-bottom: 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .panel-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--gold);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn {
+      background: var(--bg-surface);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      background: var(--gold);
+      color: #111;
+    }
+
+    .diagram-viewport {
+      overflow: auto;
+      max-height: 80vh;
+      display: flex;
+      justify-content: center;
+      padding: 1rem;
+      background: #140810;
+      border-radius: 8px;
+    }
+
+    .diagram-viewport svg {
+      max-width: 100% !important;
+      height: auto !important;
+    }
+
+    /* Grid de Entidades */
+    .entities-section h2 {
+      font-family: 'Playfair Display', serif;
+      color: var(--gold);
+      font-size: 1.8rem;
+      margin-bottom: 1.2rem;
+      text-align: center;
+    }
+
+    .entities-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .entity-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(229, 193, 88, 0.2);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .entity-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--gold);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .entity-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .entity-name {
+      font-weight: 700;
+      color: var(--gold);
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+    }
+
+    .entity-count {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      background: rgba(212, 56, 94, 0.2);
+      color: #FF8BA7;
+      font-weight: 600;
+    }
+
+    .entity-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      line-height: 1.4;
+    }
+
+    .entity-fields {
+      list-style: none;
+      font-size: 0.85rem;
+    }
+
+    .entity-fields li {
+      padding: 0.25rem 0;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+    }
+
+    .field-name {
+      color: #FFF;
+      font-family: monospace;
+    }
+
+    .field-meta {
+      color: var(--gold);
+      font-size: 0.78rem;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1 class="brand-title"><span>🌹</span> Rosas de Guadalupe Management System</h1>
+      <p class="brand-subtitle">Diagrama Entidad-Relación (ERD) • Base de Datos Oracle XE 21c (XEPDB1)</p>
+      <div class="meta-badges">
+        <span class="badge">Contenedor: XEPDB1</span>
+        <span class="badge">Esquema: ROSAS_ADMIN</span>
+        <span class="badge badge-rose">10 Tablas Creadas</span>
+        <span class="badge">Política 50/50 en Soles (S/)</span>
+        <span class="badge badge-rose">Comisión Tarjeta: 5% (RS-128 / RS-137)</span>
+      </div>
+    </header>
+
+    <div class="diagram-panel">
+      <div class="panel-controls">
+        <span class="panel-title">Visualizador Gráfico del Modelo Relacional</span>
+        <div class="btn-group">
+          <button class="btn" onclick="zoomIn()">Zoom +</button>
+          <button class="btn" onclick="zoomOut()">Zoom -</button>
+          <button class="btn" onclick="resetZoom()">Restablecer</button>
+        </div>
+      </div>
+
+      <div class="diagram-viewport" id="viewport">
+        <div class="mermaid" id="mermaid-graph">
+erDiagram
+    CLIENTES ||--o{ EVENTOS_RESERVAS : "registra (1:N)"
+    FORMATOS_MARIACHI ||--o{ EVENTOS_RESERVAS : "contrata (1:N)"
+    ZONAS_COBERTURA ||--o{ EVENTOS_RESERVAS : "ubica (1:N)"
+    ESTADOS_RESERVA ||--o{ EVENTOS_RESERVAS : "clasifica_estado (1:N)"
+    EVENTOS_RESERVAS ||--|| ANTICIPOS : "garantiza_anticipo_50 (1:1)"
+    EVENTOS_RESERVAS ||--o{ PAGOS : "recibe_abonos (1:N)"
+    EVENTOS_RESERVAS ||--o{ RESERVA_CANCIONES : "incluye_setlist (1:N)"
+    CANCIONES ||--o{ RESERVA_CANCIONES : "interpretada_en (1:N)"
+
+    CLIENTES {
+        NUMBER id_cliente PK
+        VARCHAR2 nombre
+        VARCHAR2 apellido
+        VARCHAR2 telefono
+        VARCHAR2 email UK
+        VARCHAR2 direccion_referencia
+        TIMESTAMP fecha_registro
+    }
+
+    ZONAS_COBERTURA {
+        NUMBER id_zona PK
+        VARCHAR2 nombre_zona
+        VARCHAR2 descripcion
+        NUMBER recargo_transporte
+        NUMBER tiempo_estimado_traslado_min
+        CHAR activo
+    }
+
+    FORMATOS_MARIACHI {
+        NUMBER id_formato PK
+        VARCHAR2 nombre_formato
+        VARCHAR2 descripcion
+        NUMBER num_musicos
+        NUMBER precio_base_hora
+        CHAR incluye_equipo_audio
+        CHAR activo
+    }
+
+    INTEGRANTES_MARIACHI {
+        NUMBER id_integrante PK
+        VARCHAR2 nombre_completo
+        VARCHAR2 instrumento_rol
+        VARCHAR2 telefono
+        CHAR es_lider
+        CHAR activo
+    }
+
+    ESTADOS_RESERVA {
+        NUMBER id_estado PK
+        VARCHAR2 codigo UK
+        VARCHAR2 nombre
+        VARCHAR2 descripcion
+        CHAR es_final
+        NUMBER orden_flujo
+    }
+
+    EVENTOS_RESERVAS {
+        NUMBER id_reserva PK
+        VARCHAR2 codigo_reserva UK
+        NUMBER id_cliente FK
+        NUMBER id_formato FK
+        NUMBER id_zona FK
+        DATE fecha_evento
+        VARCHAR2 hora_inicio
+        NUMBER duracion_horas
+        VARCHAR2 direccion_evento
+        VARCHAR2 tipo_evento
+        VARCHAR2 estado_reserva
+        NUMBER monto_subtotal
+        NUMBER recargo_zona
+        NUMBER monto_total
+        NUMBER anticipo_requerido
+        NUMBER saldo_pendiente
+        VARCHAR2 notas_logistica
+        TIMESTAMP fecha_creacion
+    }
+
+    ANTICIPOS {
+        NUMBER id_anticipo PK
+        NUMBER id_reserva FK,UK
+        NUMBER monto_anticipo
+        NUMBER monto_saldo
+        NUMBER porcentaje
+        DATE fecha_limite_saldo
+        VARCHAR2 estado
+        TIMESTAMP fecha_creacion
+    }
+
+    PAGOS {
+        NUMBER id_pago PK
+        NUMBER id_reserva FK
+        NUMBER monto
+        VARCHAR2 metodo_pago
+        NUMBER comision
+        VARCHAR2 num_operacion
+        VARCHAR2 tipo_pago
+        TIMESTAMP fecha_pago
+    }
+
+    CANCIONES {
+        NUMBER id_cancion PK
+        VARCHAR2 titulo
+        VARCHAR2 autor
+        VARCHAR2 genero
+        NUMBER duracion_aprox
+        CHAR es_cover
+        CHAR disponible
+        TIMESTAMP fecha_registro
+    }
+
+    RESERVA_CANCIONES {
+        NUMBER id_reserva_cancion PK
+        NUMBER id_reserva FK
+        NUMBER id_cancion FK
+        CHAR es_dedicatoria
+        NUMBER orden
+        VARCHAR2 observaciones
+    }
+        </div>
+      </div>
+    </div>
+
+    <!-- Catálogo de Entidades -->
+    <section class="entities-section">
+      <h2>Catálogo de Entidades del Sistema (10 Tablas)</h2>
+      <div class="entities-grid">
+        
+        <div class="entity-card">
+          <div class="entity-header">
+            <span class="entity-name">EVENTOS_RESERVAS</span>
+            <span class="entity-count">3 Registros</span>
+          </div>
+          <p class="entity-desc">Entidad central de contrataciones. Consolida montos en Soles (S/), logística y estado de flujo.</p>
+          <ul class="entity-fields">
+            <li><span class="field-name">id_reserva</span> <span class="field-meta">PK Identity</span></li>
+            <li><span class="field-name">codigo_reserva</span> <span class="field-meta">UK ('RS-2026-001')</span></li>
+            <li><span class="field-name">monto_total</span> <span class="field-meta">Subtotal + Recargo</span></li>
+            <li><span class="field-name">anticipo_requerido</span> <span class="field-meta">50% Bloqueo</span></li>
+          </ul>
+        </div>
+
+        <div class="entity-card">
+          <div class="entity-header">
+            <span class="entity-name">ANTICIPOS</span>
+            <span class="entity-count">3 Registros (1:1)</span>
+          </div>
+          <p class="entity-desc">Proyección financiera del anticipo obligatorio del 50% con fecha límite y control de estado.</p>
+          <ul class="entity-fields">
+            <li><span class="field-name">id_anticipo</span> <span class="field-meta">PK Identity</span></li>
+            <li><span class="field-name">id_reserva</span> <span class="field-meta">FK, UK (1:1 Strict)</span></li>
+            <li><span class="field-name">porcentaje</span> <span class="field-meta">50.00% Default</span></li>
+            <li><span class="field-name">estado</span> <span class="field-meta">PAGADO / PENDIENTE</span></li>
+          </ul>
+        </div>
+
+        <div class="entity-card">
+          <div class="entity-header">
+            <span class="entity-name">PAGOS</span>
+            <span class="entity-count">3 Registros</span>
+          </div>
+          <p class="entity-desc">Transacciones bancarias y en ventanilla. Aplica comisión del 5% a tarjetas peruanas.</p>
+          <ul class="entity-fields">
+            <li><span class="field-name">id_pago</span> <span class="field-meta">PK Identity</span></li>
+            <li><span class="field-name">metodo_pago</span> <span class="field-meta">TARJETA, YAPE, BCP...</span></li>
+            <li><span class="field-name">comision</span> <span class="field-meta">5% en Tarjeta / 0% Resto</span></li>
+            <li><span class="field-name">tipo_pago</span> <span class="field-meta">ANTICIPO | SALDO</span></li>
+          </ul>
+        </div>
+
+        <div class="entity-card">
+          <div class="entity-header">
+            <span class="entity-name">CLIENTES</span>
+            <span class="entity-count">3 Registros</span>
+          </div>
+          <p class="entity-desc">Anfitriones y contratantes del show musical con datos de contacto directo.</p>
+          <ul class="entity-fields">
+            <li><span class="field-name">id_cliente</span> <span class="field-meta">PK Identity</span></li>
+            <li><span class="field-name">email</span> <span class="field-meta">UNIQUE</span></li>
+            <li><span class="field-name">telefono</span> <span class="field-meta">WhatsApp / Celular</span></li>
+          </ul>
+        </div>
+
+        <div class="entity-card">
+          <div class="entity-header">
+            <span class="entity-name">FORMATOS_MARIACHI</span>
+            <span class="entity-count">3 Registros</span>
+          </div>
+          <p class="entity-desc">Catálogo de paquetes: Serenata (45m), Show Estándar (1h) y Show Premium (2h con sonido).</p>
+          <ul class="entity-fields">
+            <li><span class="field-name">id_formato</span> <span class="field-meta">PK Identity</span></li>
+            <li><span class="field-name">precio_base_hora</span> <span class="field-meta">S/ 2,200 / S/ 2,800 / S/ 5,200</span></li>
+            <li><span class="field-name">num_musicos</span> <span class="field-meta">6 Integrantes</span></li>
+          </ul>
+        </div>
+
+        <div class="entity-card">
+          <div class="entity-header">
+            <span class="entity-name">ZONAS_COBERTURA</span>
+            <span class="entity-count">4 Registros</span>
+          </div>
+          <p class="entity-desc">Zonas geográficas de Trujillo y tarifas logísticas por distancia de traslado.</p>
+          <ul class="entity-fields">
+            <li><span class="field-name">id_zona</span> <span class="field-meta">PK Identity</span></li>
+            <li><span class="field-name">recargo_transporte</span> <span class="field-meta">S/ 0, S/ 250, S/ 600</span></li>
+            <li><span class="field-name">tiempo_estimado</span> <span class="field-meta">Minutos de viaje</span></li>
+          </ul>
+        </div>
+
+        <div class="entity-card">
+          <div class="entity-header">
+            <span class="entity-name">INTEGRANTES_MARIACHI</span>
+            <span class="entity-count">6 Registros</span>
+          </div>
+          <p class="entity-desc">Elenco profesional femenino oficial: 2 trompetas, vihuela, guitarrón y 2 voces.</p>
+          <ul class="entity-fields">
+            <li><span class="field-name">id_integrante</span> <span class="field-meta">PK Identity</span></li>
+            <li><span class="field-name">instrumento_rol</span> <span class="field-meta">Voz, Trompeta, Cuerdas</span></li>
+            <li><span class="field-name">es_lider</span> <span class="field-meta">S / N (Directora)</span></li>
+          </ul>
+        </div>
+
+        <div class="entity-card">
+          <div class="entity-header">
+            <span class="entity-name">ESTADOS_RESERVA</span>
+            <span class="entity-count">5 Registros</span>
+          </div>
+          <p class="entity-desc">Flujo de vida: COTIZADA &rarr; ANTICIPO_PAGADO &rarr; CONFIRMADA &rarr; LIQUIDADA &rarr; CANCELADA.</p>
+          <ul class="entity-fields">
+            <li><span class="field-name">id_estado</span> <span class="field-meta">PK Identity</span></li>
+            <li><span class="field-name">codigo</span> <span class="field-meta">UNIQUE</span></li>
+            <li><span class="field-name">orden_flujo</span> <span class="field-meta">1 a 5</span></li>
+          </ul>
+        </div>
+
+        <div class="entity-card">
+          <div class="entity-header">
+            <span class="entity-name">CANCIONES</span>
+            <span class="entity-count">8 Registros</span>
+          </div>
+          <p class="entity-desc">Repertorio de música mexicana, rancheras, cumbias, boleros y huapangos tradicionales.</p>
+          <ul class="entity-fields">
+            <li><span class="field-name">id_cancion</span> <span class="field-meta">PK Identity</span></li>
+            <li><span class="field-name">genero</span> <span class="field-meta">Ranchera, Bolero...</span></li>
+            <li><span class="field-name">disponible</span> <span class="field-meta">S / N</span></li>
+          </ul>
+        </div>
+
+        <div class="entity-card">
+          <div class="entity-header">
+            <span class="entity-name">RESERVA_CANCIONES</span>
+            <span class="entity-count">0 Registros (N:M)</span>
+          </div>
+          <p class="entity-desc">Setlist asignado a cada evento, permitiendo dedicatorias y orden de interpretación.</p>
+          <ul class="entity-fields">
+            <li><span class="field-name">id_reserva_cancion</span> <span class="field-meta">PK Identity</span></li>
+            <li><span class="field-name">id_reserva</span> <span class="field-meta">FK EVENTOS_RESERVAS</span></li>
+            <li><span class="field-name">id_cancion</span> <span class="field-meta">FK CANCIONES</span></li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <footer>
+      <p>Rosas de Guadalupe Management System • Generado con Oracle Database 21c Express Edition</p>
+    </footer>
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#140810',
+        primaryColor: '#2A1020',
+        primaryBorderColor: '#E5C158',
+        primaryTextColor: '#FFFFFF',
+        lineColor: '#E5C158',
+        textColor: '#FFFFFF'
+      }
+    });
+
+    let currentZoom = 1;
+    const viewport = document.getElementById('viewport');
+
+    function zoomIn() {
+      currentZoom += 0.15;
+      applyZoom();
+    }
+
+    function zoomOut() {
+      if (currentZoom > 0.4) {
+        currentZoom -= 0.15;
+        applyZoom();
+      }
+    }
+
+    function resetZoom() {
+      currentZoom = 1;
+      applyZoom();
+    }
+
+    function applyZoom() {
+      const svg = viewport.querySelector('svg');
+      if (svg) {
+        svg.style.transform = `scale(${currentZoom})`;
+        svg.style.transformOrigin = 'top center';
+        svg.style.transition = 'transform 0.2s ease';
+      }
+    }
+  </script>
+</body>
+</html>

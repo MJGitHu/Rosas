@@ -56,9 +56,9 @@
                 <label for="zone-select">Zona de Cobertura (Logística)</label>
                 <select id="zone-select" class="form-control">
                   <option value="0" selected>Zona Centro / Urbana (Sin recargo)</option>
-                  <option value="250">Zona Norte / Periferia Cercana (+$250)</option>
-                  <option value="250">Zona Sur / Conurbada (+$250)</option>
-                  <option value="600">Zona Campestre / Foránea (+$600)</option>
+                  <option value="250">Zona Norte / Periferia Cercana (+S/ 250.00)</option>
+                  <option value="250">Zona Sur / Conurbada (+S/ 250.00)</option>
+                  <option value="600">Zona Campestre / Foránea (+S/ 600.00)</option>
                 </select>
               </div>
             </div>
@@ -69,7 +69,7 @@
                 <label class="payment-card selected">
                   <input type="radio" name="payment-method" value="TRANSFERENCIA" checked>
                   <div class="method-info">
-                    <span class="method-title">Transferencia / SPEI</span>
+                    <span class="method-title">Transferencia Bancaria</span>
                     <span class="method-fee">0% comisión adicional</span>
                   </div>
                 </label>
@@ -77,7 +77,7 @@
                   <input type="radio" name="payment-method" value="TARJETA_CREDITO">
                   <div class="method-info">
                     <span class="method-title">Tarjeta Crédito / Débito</span>
-                    <span class="method-fee">+3.5% comisión pasarela</span>
+                    <span class="method-fee">+5% comisión pasarela</span>
                   </div>
                 </label>
                 <label class="payment-card">
@@ -106,15 +106,15 @@
           <div class="breakdown-list">
             <div class="breakdown-row">
               <span>Subtotal Presentación Musical:</span>
-              <strong id="summary-subtotal">$2,800.00</strong>
+              <strong id="summary-subtotal">S/ 2,800.00</strong>
             </div>
             <div class="breakdown-row">
               <span>Recargo Logístico / Traslado:</span>
-              <strong id="summary-logistics">$0.00</strong>
+              <strong id="summary-logistics">S/ 0.00</strong>
             </div>
             <div class="breakdown-row highlight">
               <span>Presupuesto Total del Evento:</span>
-              <strong id="summary-total">$2,800.00</strong>
+              <strong id="summary-total">S/ 2,800.00</strong>
             </div>
             <hr class="divider">
             <div class="breakdown-row alert-row">
@@ -122,19 +122,19 @@
                 <strong>Anticipo para Bloqueo de Fecha (50%):</strong>
                 <small class="block-hint">Requerido para apartar la agenda</small>
               </div>
-              <strong id="summary-advance" class="text-gold">$1,400.00</strong>
+              <strong id="summary-advance" class="text-gold">S/ 1,400.00</strong>
             </div>
             <div class="breakdown-row">
               <span>Comisión de Pasarela (si aplica):</span>
-              <strong id="summary-fee">$0.00</strong>
+              <strong id="summary-fee">S/ 0.00</strong>
             </div>
             <div class="breakdown-row total-pay-now">
               <span>Total a Liquidar Hoy (Anticipo):</span>
-              <span id="summary-pay-now" class="amount-large">$1,400.00</span>
+              <span id="summary-pay-now" class="amount-large">S/ 1,400.00</span>
             </div>
             <div class="breakdown-row settlement-row">
               <span>Saldo Pendiente al Llegar al Evento (50%):</span>
-              <strong id="summary-balance">$1,400.00</strong>
+              <strong id="summary-balance">S/ 1,400.00</strong>
             </div>
           </div>
 

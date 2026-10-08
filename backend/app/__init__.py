@@ -24,10 +24,13 @@ def create_app(config_class=Config):
     
     @app.route("/api/health")
     def health_check():
+        from app.db import _pool
+        db_status = "connected" if _pool is not None else "disconnected"
         return {
             "status": "online",
             "app": "Rosas de Guadalupe Management System API",
-            "version": "1.0.0"
+            "version": "1.0.0",
+            "database": db_status
         }
         
     return app

@@ -78,6 +78,8 @@ sqlnet.ora
 # --- Archivos de Registro y Caché (Logs & Cache) ---
 *.log
 logs/
+!docs/logs/
+!docs/logs/*
 *.pid
 *.seed
 *.pid.lock
@@ -96,3 +98,23 @@ htmlcov/
 ehthumbs.db
 Thumbs.db
 [Dd]esktop.ini
+
+# Worktrees y archivos internos de herramientas de ejecución
+.kilo/
+
+# Logs y trazas de Oracle SQL Developer / cliente Oracle
+*.trc
+*.trm
+sqlnet.log
+oracle_wallet/
+
+# Archivos de configuración de Antigravity
+.antigravity/
+*.antigravity
+
+# Scripts y carpetas de pruebas/verificación temporales
+.testing/
+.tests/
+tests_scratch/
+scratch/
+

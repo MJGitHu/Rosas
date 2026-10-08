@@ -1,0 +1,49 @@
+Windows PowerShell
+Copyright (C) Microsoft Corporation. Todos los derechos reservados.
+
+PS D:\rosas-de-guadalupe-rs> sqlplus ROSAS_ADMIN/Mariachi2026!@localhost:1521/XEPDB1
+
+SQL*Plus: Release 21.0.0.0.0 - Production on Wed Oct 7 18:23:25 2026
+Version 21.3.0.0.0
+
+Copyright (c) 1982, 2021, Oracle.  All rights reserved.
+
+Conectado a:
+Oracle Database 21c Express Edition Release 21.0.0.0.0 - Production
+Version 21.3.0.0.0
+
+SQL> -- Validación de contexto de sesión y conexión de red
+SQL> SELECT SYS_CONTEXT('USERENV', 'CURRENT_USER') AS usuario_actual,
+  2         SYS_CONTEXT('USERENV', 'CON_NAME') AS contenedor_pdb,
+  3         SYS_CONTEXT('USERENV', 'SERVICE_NAME') AS servicio_red,
+  4         SYS_CONTEXT('USERENV', 'DB_NAME') AS base_datos,
+  5         SYS_CONTEXT('USERENV', 'SERVER_HOST') AS host_servidor,
+  6         TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS') AS fecha_servidor
+  7  FROM dual;
+
+USUARIO_ACTUAL  CONTENEDOR_PDB  SERVICIO_RED         BASE_DATOS      HOST_SERVIDOR        FECHA_SERVIDOR
+--------------- --------------- -------------------- --------------- -------------------- -------------------
+ROSAS_ADMIN     XEPDB1          xepdb1               XEPDB1          vwmq2agb             2026-10-07 18:23:25
+
+SQL> -- Versión del motor de base de datos
+SQL> SELECT banner_full FROM v$version WHERE ROWNUM = 1;
+
+BANNER_FULL
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Oracle Database 21c Express Edition Release 21.0.0.0.0 - Production
+Version 21.3.0.0.0
+
+SQL> -- Roles activos en la sesión
+SQL> SELECT role FROM session_roles WHERE role IN ('CONNECT', 'RESOURCE', 'DBA') ORDER BY role;
+
+ROLE
+------------------------------
+CONNECT
+DBA
+RESOURCE
+
+SQL> EXIT;
+Desconectado de Oracle Database 21c Express Edition Release 21.0.0.0.0 - Production
+Version 21.3.0.0.0
+
+PS D:\rosas-de-guadalupe-rs> 
