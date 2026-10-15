@@ -118,8 +118,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch {
       apiStatusBadge.textContent = "Backend: Modo Offline / Standalone";
-      apiStatusBadge.style.color = "#E5C158";
-      apiStatusBadge.style.borderColor = "rgba(229, 193, 88, 0.4)";
+      apiStatusBadge.style.color = "#AD1457";
+      apiStatusBadge.style.borderColor = "rgba(194, 24, 91, 0.35)";
     }
   };
 
