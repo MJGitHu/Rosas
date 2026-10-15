@@ -83,21 +83,27 @@ Si ves el prompt `SQL>`, escribe `EXIT;` para continuar.
 
 ---
 
-## Paso 4: Ejecutar los 5 Scripts SQL en Orden
+---
 
-Ubícate en la raíz del repositorio clonado en tu terminal (PowerShell) y ejecuta los 5 scripts en orden secuencial:
+## Paso 4: Ejecutar los Scripts SQL para Crear la Base de Datos
+
+Tienes dos formas sencillas de ejecutar los scripts: **Opción A (por terminal con SQL\*Plus)** o **Opción B (desde Oracle SQL Developer)**.
+
+### Opción A: Por Terminal (PowerShell)
+
+Ubícate en la raíz del repositorio clonado y ejecuta los 6 scripts en orden secuencial:
 
 ```powershell
 # Asegúrate de estar en la carpeta raíz del proyecto
 cd \ruta\a\rosas-de-guadalupe-rs
 
-# 1. Esquema base DDL (clientes, zonas, formatos, reservas, elenco)
+# 1. Esquema base DDL (clientes, zonas, formatos, reservas, integrantes, pagos)
 sqlplus ROSAS_ADMIN/Mariachi2026!@localhost:1521/XEPDB1 @database/scripts/01_schema_ddl.sql
 
 # 2. Catálogos semilla (zonas de cobertura, formatos mariachi, 6 integrantes)
 sqlplus ROSAS_ADMIN/Mariachi2026!@localhost:1521/XEPDB1 @database/scripts/02_seed_data.sql
 
-# 3. Repertorio musical y estados de flujo (canciones, estados_reserva)
+# 3. Repertorio musical y estados de flujo (canciones, estados_reserva, setlist)
 sqlplus ROSAS_ADMIN/Mariachi2026!@localhost:1521/XEPDB1 @database/scripts/03_canciones_ddl.sql
 
 # 4. Modelo normalizado de pagos y anticipos 1:1 (RS-137)
@@ -105,19 +111,83 @@ sqlplus ROSAS_ADMIN/Mariachi2026!@localhost:1521/XEPDB1 @database/scripts/04_pag
 
 # 5. Datos de prueba con 3 reservas, anticipos y pagos en Soles (S/)
 sqlplus ROSAS_ADMIN/Mariachi2026!@localhost:1521/XEPDB1 @database/scripts/05_pagos_seed.sql
+
+# 6. Integración relacional completa (FK estados, elenco reserva_integrantes y dedicatorias)
+sqlplus ROSAS_ADMIN/Mariachi2026!@localhost:1521/XEPDB1 @database/scripts/06_reserva_detalles_ddl_seed.sql
 ```
 
-> **Verificación Rápida:** Puedes consultar el conteo de tablas ejecutando:
-> ```powershell
-> sqlplus ROSAS_ADMIN/Mariachi2026!@localhost:1521/XEPDB1
-> ```
-> ```sql
-> SELECT table_name FROM user_tables ORDER BY table_name;
-> SELECT 'reservas: ' || COUNT(*) FROM eventos_reservas;
-> SELECT 'pagos: ' || COUNT(*) FROM pagos;
-> EXIT;
-> ```
-> Debes ver **10 tablas** creadas y 3 reservas registradas.
+---
+
+### Opción B: Desde Oracle SQL Developer (Interfaz Gráfica)
+
+Puedes usar tanto el software independiente **Oracle SQL Developer Desktop** como la **Extensión oficial de SQL Developer para VS Code**:
+
+> 💡 **Tip para VS Code, VSCodium o Forks (Cursor, Windsurf):**  
+> Si usas VS Code estándar, puedes instalarla con:  
+> `code --install-extension Oracle.sql-developer`  
+> Si usas un fork de VS Code (como VSCodium o Cursor) donde el Marketplace de Microsoft no está disponible:  
+> 1. Descarga el archivo VSIX oficial de Oracle: [sql-developer-win32-x64-26.3.0.vsix](https://download.oracle.com/otn_software/java/sqldeveloper/sql-developer-win32-x64-26.3.0.vsix)  
+> 2. Instálalo desde el menú de Extensiones (`...` &rarr; *Install from VSIX...*) o por terminal con `code --install-extension <archivo>.vsix`.
+
+#### 1. Crear la Conexión en SQL Developer
+1. Abre **Oracle SQL Developer** (o el panel de Oracle en VS Code).
+2. En el panel izquierdo **Conexiones**, haz clic en el ícono verde **`+` (Nueva Conexión)**.
+3. Rellena exactamente los siguientes campos:
+
+| Campo en SQL Developer | Valor Exacto | Notas Importantes |
+| :--- | :--- | :--- |
+| **Name (Nombre de Conexión)** | `Rosas de Guadalupe - Local` | O el nombre que prefieras |
+| **Authentication Type** | `Default` | - |
+| **Username (Usuario)** | `ROSAS_ADMIN` | El usuario creado en el Paso 3 |
+| **Password (Contraseña)** | `Mariachi2026!` | Marcar casilla *"Guardar Contraseña"* |
+| **Connection Type** | `Basic` | - |
+| **Role** | `default` | **NO** usar SYSDBA |
+| **Hostname** | `localhost` | O `127.0.0.1` |
+| **Port** | `1521` | Puerto estándar del Listener |
+| **Service Name** ⚠️ | `XEPDB1` | **¡CRÍTICO!** Selecciona **Service Name** (NO seleccionar SID) |
+
+> ⚠️ **ERROR COMÚN A EVITAR (`ORA-12505`):**  
+> Si dejas marcada la opción **SID** con `xe`, la conexión fallará o te conectará a la raíz del contenedor donde el usuario no existe. Asegúrate de marcar el radio button **Service Name** y escribir **`XEPDB1`**.
+
+4. Haz clic en el botón **Probar (Test)** abajo a la izquierda. En el cuadro de estado inferior izquierdo debe decir: **`Estado: Correcto` (Success)**.
+5. Haz clic en **Guardar** y luego en **Conectar**.
+
+#### 2. Cargar y Ejecutar los Scripts en SQL Developer
+Tienes dos opciones para dejar la base de datos 100% actualizada:
+
+* **Método Rápido (Todo en uno):**  
+  1. En SQL Developer, menú **Archivo &rarr; Abrir...** (`Ctrl + O`).
+  2. Selecciona `database/diagrams/esquema_completo.sql`.
+  3. Asegúrate de que en la esquina superior derecha de la hoja SQL esté seleccionada la conexión `Rosas de Guadalupe - Local`.
+  4. Presiona la tecla **`F5`** (o clic en el ícono **Ejecutar Script** con la hoja y el triángulo verde).
+  5. Luego abre y ejecuta `database/scripts/02_seed_data.sql`, `05_pagos_seed.sql` y `06_reserva_detalles_ddl_seed.sql` para tener los datos de prueba.
+
+* **Método Paso a Paso:**  
+  Abre y ejecuta con **`F5`** los scripts de la carpeta `database/scripts/` en orden del `01` al `06`:
+  1. `01_schema_ddl.sql`
+  2. `02_seed_data.sql`
+  3. `03_canciones_ddl.sql`
+  4. `04_pagos_ddl.sql`
+  5. `05_pagos_seed.sql`
+  6. `06_reserva_detalles_ddl_seed.sql`
+
+#### 3. Verificar las Tablas Creadas
+En el panel izquierdo, despliega la conexión **`Rosas de Guadalupe - Local` &rarr; `Tablas (Tables)`** y haz clic en el ícono de **Refrescar (`↻`)**.
+
+Debes ver las **11 tablas del sistema**:
+1. `ANTICIPOS`
+2. `CANCIONES`
+3. `CLIENTES`
+4. `ESTADOS_RESERVA`
+5. `EVENTOS_RESERVAS`
+6. `FORMATOS_MARIACHI`
+7. `INTEGRANTES_MARIACHI`
+8. `PAGOS`
+9. `RESERVA_CANCIONES`
+10. `RESERVA_INTEGRANTES`
+11. `ZONAS_COBERTURA`
+
+*(Nota: Si ves tablas que empiezan por `ANNOTATIONS_%$`, son tablas internas de metadatos de Oracle 21c; no forman parte del sistema y se pueden ignorar).*
 
 ---
 

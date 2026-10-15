@@ -286,6 +286,8 @@ erDiagram
     EVENTOS_RESERVAS ||--o{ PAGOS : "recibe_abonos (1:N)"
     EVENTOS_RESERVAS ||--o{ RESERVA_CANCIONES : "incluye_setlist (1:N)"
     CANCIONES ||--o{ RESERVA_CANCIONES : "interpretada_en (1:N)"
+    EVENTOS_RESERVAS ||--o{ RESERVA_INTEGRANTES : "asigna_elenco (1:N)"
+    INTEGRANTES_MARIACHI ||--o{ RESERVA_INTEGRANTES : "participa_en (1:N)"
 
     CLIENTES {
         NUMBER id_cliente PK
@@ -345,7 +347,7 @@ erDiagram
         NUMBER duracion_horas
         VARCHAR2 direccion_evento
         VARCHAR2 tipo_evento
-        VARCHAR2 estado_reserva
+        VARCHAR2 estado_reserva FK
         NUMBER monto_subtotal
         NUMBER recargo_zona
         NUMBER monto_total
@@ -396,13 +398,21 @@ erDiagram
         NUMBER orden
         VARCHAR2 observaciones
     }
+
+    RESERVA_INTEGRANTES {
+        NUMBER id_reserva_integrante PK
+        NUMBER id_reserva FK
+        NUMBER id_integrante FK
+        VARCHAR2 rol_en_evento
+        CHAR asistencia_confirmada
+    }
         </div>
       </div>
     </div>
 
     <!-- Catálogo de Entidades -->
     <section class="entities-section">
-      <h2>Catálogo de Entidades del Sistema (10 Tablas)</h2>
+      <h2>Catálogo de Entidades del Sistema (11 Tablas Interconectadas)</h2>
       <div class="entities-grid">
         
         <div class="entity-card">
@@ -528,13 +538,26 @@ erDiagram
         <div class="entity-card">
           <div class="entity-header">
             <span class="entity-name">RESERVA_CANCIONES</span>
-            <span class="entity-count">0 Registros (N:M)</span>
+            <span class="entity-count">7 Registros (N:M)</span>
           </div>
           <p class="entity-desc">Setlist asignado a cada evento, permitiendo dedicatorias y orden de interpretación.</p>
           <ul class="entity-fields">
             <li><span class="field-name">id_reserva_cancion</span> <span class="field-meta">PK Identity</span></li>
             <li><span class="field-name">id_reserva</span> <span class="field-meta">FK EVENTOS_RESERVAS</span></li>
             <li><span class="field-name">id_cancion</span> <span class="field-meta">FK CANCIONES</span></li>
+          </ul>
+        </div>
+
+        <div class="entity-card">
+          <div class="entity-header">
+            <span class="entity-name">RESERVA_INTEGRANTES</span>
+            <span class="entity-count">18 Registros (N:M)</span>
+          </div>
+          <p class="entity-desc">Elenco asignado y confirmación de asistencia del mariachi (6 músicas) para cada presentación.</p>
+          <ul class="entity-fields">
+            <li><span class="field-name">id_reserva_integrante</span> <span class="field-meta">PK Identity</span></li>
+            <li><span class="field-name">id_reserva</span> <span class="field-meta">FK EVENTOS_RESERVAS</span></li>
+            <li><span class="field-name">id_integrante</span> <span class="field-meta">FK INTEGRANTES_MARIACHI</span></li>
           </ul>
         </div>
 

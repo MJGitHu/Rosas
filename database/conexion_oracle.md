@@ -4,23 +4,46 @@ Esta guía detalla el procedimiento para configurar, conectar y ejecutar scripts
 
 ---
 
-## 1. Extensiones Recomendadas para VS Code
+## 1. Extensiones Recomendadas para VS Code / Forks
 
-Para trabajar de forma productiva con Oracle Database en VS Code, se recomienda instalar las siguientes extensiones desde el Marketplace:
+Para trabajar de forma productiva con Oracle Database en VS Code o sus forks (VSCodium, Cursor, Windsurf, etc.), tienes dos métodos de instalación:
 
-1. **Oracle Developer Tools for VS Code (Official)**
-   - **ID**: `Oracle.oracledevtools`
-   - **Descripción**: Extensión oficial de Oracle que incluye explorador de conexiones, autocompletado PL/SQL, ejecución de consultas SQL y scripts, y depuración.
-2. **Oracle SQL Developer Extension for VS Code**
-   - **ID**: `Oracle.sql-developer`
-   - **Descripción**: Lleva la potencia tradicional de SQL Developer a la interfaz moderna de VS Code.
-3. **Database Client JDBC / SQLTools (Opcional)**
-   - Soporte complementario para visualización rápida de tablas y diagramas ER básicos.
+### Método A: Instalación Automática desde el Marketplace Oficial
+Si utilizas el VS Code estándar de Microsoft:
+1. **Oracle Developer Tools for VS Code (Official)** (`Oracle.oracledevtools`)
+2. **Oracle SQL Developer Extension for VS Code** (`Oracle.sql-developer`)
 
-Para instalarlas rápidamente desde la terminal de VS Code:
+Instalación rápida por terminal:
 ```bash
 code --install-extension Oracle.oracledevtools
+code --install-extension Oracle.sql-developer
 ```
+
+---
+
+### Método B: Instalación Directa mediante VSIX (Para Open VSX, VSCodium o Forks)
+En entornos donde el Marketplace oficial de Microsoft está restringido o se utiliza el registro alternativo Open VSX, puedes instalar la extensión oficial descargando el paquete VSIX compilado directamente por Oracle:
+
+* **Enlace de Descarga Directa Oficial (Oracle CDN):**  
+  [Descargar Oracle SQL Developer VSIX v26.3.0 (Win64)](https://download.oracle.com/otn_software/java/sqldeveloper/sql-developer-win32-x64-26.3.0.vsix)
+
+#### ¿Cómo instalar el archivo `.vsix`?
+1. **Por Terminal (PowerShell / CMD):**
+   ```powershell
+   # En VS Code estándar:
+   code --install-extension sql-developer-win32-x64-26.3.0.vsix
+
+   # En VSCodium:
+   codium --install-extension sql-developer-win32-x64-26.3.0.vsix
+
+   # En Cursor:
+   cursor --install-extension sql-developer-win32-x64-26.3.0.vsix
+   ```
+2. **Por Interfaz Gráfica (GUI):**
+   - Abre la pestaña de **Extensiones** (`Ctrl + Shift + X`).
+   - Haz clic en el menú de los tres puntos (**`...`**) en la esquina superior derecha del panel de extensiones.
+   - Selecciona **Instalar desde VSIX... (Install from VSIX...)**.
+   - Busca y selecciona el archivo `sql-developer-win32-x64-26.3.0.vsix` descargado.
 
 ---
 
@@ -91,15 +114,18 @@ Una vez conectado al árbol de Oracle Database en VS Code:
 
 ## 4. Orden de Ejecución de Scripts del Proyecto
 
-Los scripts SQL están versionados en la carpeta `database/scripts/`. Deben ejecutarse en el siguiente orden secuencial:
+Los scripts SQL están versionados en la carpeta `database/scripts/`. Deben ejecutarse en el siguiente orden secuencial bajo el usuario `ROSAS_ADMIN` en `XEPDB1`:
 
-1. **`database/scripts/01_schema_ddl.sql`**:
-   - Crea tablas maestras: `CLIENTES`, `FORMATOS_MARIACHI`, `EVENTOS_RESERVAS`, `PAGOS`, `ZONAS_COBERTURA`.
-   - Crea secuencias y restricciones de integridad relacional.
-2. **`database/scripts/02_seed_data.sql`**:
-   - Inserta catálogos base (las 6 integrantes, tarifas de formatos musicales por hora, recargos logísticos por zona).
-3. **`database/scripts/03_triggers_views.sql`**:
-   - Vistas para liquidación de saldos y disparadores para auditoría de reservas.
+1. **`database/scripts/01_schema_ddl.sql`**: Esquema base (Clientes, Formatos, Zonas, Eventos Reservas, Pagos, Integrantes).
+2. **`database/scripts/02_seed_data.sql`**: Catálogos iniciales (6 integrantes femeninas, tarifas por formato, recargos de cobertura).
+3. **`database/scripts/03_canciones_ddl.sql`**: Repertorio de canciones, tabla de estados de reserva y relación N:M `RESERVA_CANCIONES`.
+4. **`database/scripts/04_pagos_ddl.sql`**: Refactorización de pagos y creación de tabla `ANTICIPOS` (regla del 50% 1:1).
+5. **`database/scripts/05_pagos_seed.sql`**: Datos de prueba con 3 reservas, anticipos calculados y pagos registrados en Soles (S/).
+6. **`database/scripts/06_reserva_detalles_ddl_seed.sql`**: Clave foránea de estados, tabla asociativa `RESERVA_INTEGRANTES` (elenco/asistencia) y setlist de prueba.
+
+> 💡 **Atajo con Esquema Completo:**
+> Si prefieres inicializar toda la base de datos limpia de un solo golpe, puedes ejecutar directamente:
+> **`database/diagrams/esquema_completo.sql`** (crea las 11 tablas interconectadas con todas sus Primary Keys, Foreign Keys y restricciones de negocio).
 
 ---
 

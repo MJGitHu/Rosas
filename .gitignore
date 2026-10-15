@@ -108,13 +108,16 @@ Thumbs.db
 sqlnet.log
 oracle_wallet/
 
-# Archivos de configuración de Antigravity
+# Archivos de configuración de Antigravity y skills locales
 .antigravity/
 *.antigravity
+.agents/
+skills-lock.json
 
 # Scripts y carpetas de pruebas/verificación temporales
 .testing/
 .tests/
 tests_scratch/
 scratch/
+
 
