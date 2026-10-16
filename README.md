@@ -1,6 +1,6 @@
 # Rosas de Guadalupe Management System
 
-Plataforma web integral orientada a modernizar y digitalizar el ciclo comercial, operativo y logístico del grupo musical de mariachi femenino **"Rosas de Guadalupe"** (conformado por 6 integrantes: 2 trompetas, vihuela, guitarrón y 2 cantantes). El sistema automatiza desde la cotización personalizada en tiempo real, validación de cobertura y disponibilidad de agenda, hasta el recaudo financiero escalonado (pago inicial del 50% en concepto de anticipo para reserva de fecha y liquidación del 50% restante al inicio del evento), reduciendo tiempos operativos, previniendo sobreventas de fechas y brindando total transparencia en comisiones e itinerarios.
+Plataforma web integral orientada a modernizar y digitalizar el ciclo comercial, operativo y logístico del grupo musical de mariachi femenino **"Rosas de Guadalupe"** (conformado por 6 integrantes: 2 trompetas, vihuela, guitarrón y 2 cantantes). El sistema automatiza la cotización personalizada en tiempo real y el recaudo financiero escalonado (pago inicial del 50% en concepto de anticipo para reservar la fecha y liquidación del 50% restante al inicio del evento), reduciendo tiempos operativos y brindando transparencia en comisiones e itinerarios.
 
 ---
 
@@ -16,8 +16,11 @@ Enlace al tablero: https://upao-team-e2081s7v.atlassian.net/jira/software/projec
 - **Selección de Servicios y Formatos**: Mariachi completo, Express 1, Express 2, Express dúo y Solista; cotización para duraciones de 30, 40 o 60 minutos.
 - **Detalles del Evento**: Campo de texto para describir servicios adicionales o solicitudes especiales.
 - **Horas Adicionales**: Se inician en 0; cada hora extra cuesta S/ 60 menos que la tarifa de 60 minutos del formato seleccionado.
+- **Datos del Evento**: Captura de dirección, fecha y hora, sin recargos por distancia por ahora.
+- **Resumen y reserva**: Muestra los datos del contrato; guardar una reserva en efectivo requiere conexión a Oracle.
+- **Administración privada**: Inicio de sesión para una única administradora configurada en el servidor y calendario mensual de contratos con sus detalles.
+- **Pagos electrónicos**: Muestra un espacio reservado para QR; el procesamiento todavía no está integrado.
 - **Calculadora en Tiempo Real**: Ajuste por duración de presentación y recálculo automático de honorarios.
-- **Validación de Cobertura y Logística**: Cálculo de recargos por desplazamiento según la zona geográfica (Urbana, Periferia Norte/Sur o Campestre/Foránea).
 - **Gestión Financiera Escalonada (Regla 50/50)**:
   - Generación obligatoria del **Anticipo del 50%** para confirmar y bloquear la fecha en el calendario oficial.
   - Control del **Saldo Restante del 50%** a ser liquidado al arribo de la agrupación al evento.
@@ -36,7 +39,7 @@ Enlace al tablero: https://upao-team-e2081s7v.atlassian.net/jira/software/projec
 - **Backend**:
   - **Python 3.10+** con **Flask** para una arquitectura ligera y extensible basada en Blueprints.
   - **python-oracledb** en **Modo Thin** (alto rendimiento y portabilidad sin necesidad de binarios pesados del Instant Client).
-  - **Flask-CORS** para habilitar la comunicación cross-origin con el cliente web.
+  - **Flask-CORS** con lista explícita de orígenes permitidos para el desarrollo.
   - **python-dotenv** para manejo seguro de credenciales y variables de entorno.
 - **Base de Datos**:
   - **Oracle Database** (XE 18c/21c/23ai o Cloud Autonomous Transaction Processing).
@@ -79,6 +82,9 @@ cd rosas_de_guadalupe_mvp
 3. Ejecuta los scripts SQL en el siguiente orden estricto:
    - `database/scripts/01_schema_ddl.sql` (Crea tablas, secuencias y constraints).
    - `database/scripts/02_seed_data.sql` (Inserta integrantes, formatos y tarifas).
+   - `database/scripts/07_catalogo_servicios.sql` (Actualiza catálogos y prepara los campos requeridos por las reservas web).
+
+En bases de datos ya existentes, ejecuta `database/scripts/07_catalogo_servicios.sql` antes de guardar reservas desde la web. Puede volver a ejecutarse para corregir y actualizar los catálogos.
 
 ### 3. Configurar el Entorno Backend (Flask)
 
@@ -101,32 +107,19 @@ cd rosas_de_guadalupe_mvp
    ```bash
    pip install -r requirements.txt
    ```
-4. Configura las variables de entorno:
-   ```bash
-   copy .env.example .env   # En Windows
-   # cp .env.example .env    # En Linux/macOS
+4. Crea `backend/.env` si todavía no existe y agrega la configuración local:
+   ```powershell
+   if (-not (Test-Path backend\.env)) { New-Item -Path backend\.env -ItemType File | Out-Null }
+   code backend\.env
    ```
-   *Edita `.env` con las credenciales de tu usuario de Oracle Database (`ORACLE_USER`, `ORACLE_PASSWORD`, `ORACLE_SERVICE_NAME`).*
+   Configura `ORACLE_USER`, `ORACLE_PASSWORD`, `ORACLE_HOST`, `ORACLE_PORT` y `ORACLE_SERVICE_NAME` con los datos de tu instancia. Usa una contraseña propia y no la compartas. El archivo `.env` está excluido de Git; no subas sus credenciales.
 
-5. Inicia el servidor de desarrollo de Flask:
+5. Configura en `backend/.env` una `SECRET_KEY` aleatoria, `ADMIN_USERNAME` y un `ADMIN_PASSWORD_HASH` generado con Werkzeug. Consulta [`docs/setup_local_equipo.md`](docs/setup_local_equipo.md) para los comandos. Nunca uses una clave secreta de ejemplo ni guardes la contraseña en texto plano.
+6. Inicia el servidor Flask:
    ```bash
    python run.py
    ```
-   El servidor estará escuchando en `http://localhost:5000` con la API accesible en `http://localhost:5000/api/health`.
-
-### 4. Ejecutar el Frontend
-
-Dado que el frontend está desacoplado y estructurado con estándares web nativos, puedes abrirlo directamente o a través de un servidor estático:
-
-- **Opción A (Rápida - Live Server en VS Code):**
-  - Haz clic derecho sobre `frontend/public/index.html` y selecciona **Open with Live Server**.
-- **Opción B (Python HTTP Server):**
-  - En una nueva terminal:
-    ```bash
-    cd frontend/public
-    python -m http.server 3000
-    ```
-  - Abre en tu navegador: `http://localhost:3000`
+   Abre `http://localhost:5000`; Flask sirve la aplicación web y la API desde el mismo origen. El health check está disponible en `http://localhost:5000/api/health`.
 
 ### Ejecutar pruebas unitarias
 
@@ -148,7 +141,6 @@ rosas_de_guadalupe_mvp/
 │   │   ├── config.py              # Gestión centralizada de variables de entorno
 │   │   ├── db.py                  # Conexión y pooling con python-oracledb (Modo Thin)
 │   │   └── __init__.py            # Fábrica de aplicaciones Flask (Application Factory)
-│   ├── .env.example               # Plantilla de variables de entorno para desarrollo
 │   ├── requirements.txt           # Manifiesto de dependencias de Python
 │   └── run.py                     # Punto de entrada para ejecución del servidor
 │

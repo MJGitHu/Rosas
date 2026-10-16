@@ -67,8 +67,8 @@ sqlplus / as sysdba
 ```sql
 ALTER SESSION SET CONTAINER = XEPDB1;
 
-CREATE USER ROSAS_ADMIN IDENTIFIED BY "Mariachi2026!";
-GRANT CONNECT, RESOURCE, DBA TO ROSAS_ADMIN;
+CREATE USER ROSAS_ADMIN IDENTIFIED BY "TU_CONTRASENA_LOCAL";
+GRANT CREATE SESSION, CREATE TABLE, CREATE VIEW, CREATE SEQUENCE, CREATE PROCEDURE, CREATE TRIGGER TO ROSAS_ADMIN;
 ALTER USER ROSAS_ADMIN QUOTA UNLIMITED ON USERS;
 
 COMMIT;
@@ -77,9 +77,9 @@ EXIT;
 
 3. **Verifica la conexión del nuevo usuario:**
 ```powershell
-sqlplus ROSAS_ADMIN/Mariachi2026!@localhost:1521/XEPDB1
+sqlplus ROSAS_ADMIN@localhost:1521/XEPDB1
 ```
-Si ves el prompt `SQL>`, escribe `EXIT;` para continuar.
+SQL*Plus solicitará la contraseña de forma interactiva. Si ves el prompt `SQL>`, escribe `EXIT;` para continuar.
 
 ---
 
@@ -94,26 +94,20 @@ Tienes dos formas sencillas de ejecutar los scripts: **Opción A (por terminal c
 Ubícate en la raíz del repositorio clonado y ejecuta los 6 scripts en orden secuencial:
 
 ```powershell
-# Asegúrate de estar en la carpeta raíz del proyecto
-cd \ruta\a\rosas-de-guadalupe-rs
+Set-Location \ruta\a\rosas_de_guadalupe_mvp
+sqlplus ROSAS_ADMIN@localhost:1521/XEPDB1
+```
 
-# 1. Esquema base DDL (clientes, zonas, formatos, reservas, integrantes, pagos)
-sqlplus ROSAS_ADMIN/Mariachi2026!@localhost:1521/XEPDB1 @database/scripts/01_schema_ddl.sql
+SQL*Plus solicitará la contraseña sin mostrarla. En el prompt `SQL>`, ejecuta cada script y confirma que termine correctamente antes de pasar al siguiente:
 
-# 2. Catálogos semilla (zonas de cobertura, formatos mariachi, 6 integrantes)
-sqlplus ROSAS_ADMIN/Mariachi2026!@localhost:1521/XEPDB1 @database/scripts/02_seed_data.sql
-
-# 3. Repertorio musical y estados de flujo (canciones, estados_reserva, setlist)
-sqlplus ROSAS_ADMIN/Mariachi2026!@localhost:1521/XEPDB1 @database/scripts/03_canciones_ddl.sql
-
-# 4. Modelo normalizado de pagos y anticipos 1:1 (RS-137)
-sqlplus ROSAS_ADMIN/Mariachi2026!@localhost:1521/XEPDB1 @database/scripts/04_pagos_ddl.sql
-
-# 5. Datos de prueba con 3 reservas, anticipos y pagos en Soles (S/)
-sqlplus ROSAS_ADMIN/Mariachi2026!@localhost:1521/XEPDB1 @database/scripts/05_pagos_seed.sql
-
-# 6. Integración relacional completa (FK estados, elenco reserva_integrantes y dedicatorias)
-sqlplus ROSAS_ADMIN/Mariachi2026!@localhost:1521/XEPDB1 @database/scripts/06_reserva_detalles_ddl_seed.sql
+```sql
+@database/scripts/01_schema_ddl.sql
+@database/scripts/02_seed_data.sql
+@database/scripts/03_canciones_ddl.sql
+@database/scripts/04_pagos_ddl.sql
+@database/scripts/05_pagos_seed.sql
+@database/scripts/06_reserva_detalles_ddl_seed.sql
+@database/scripts/07_catalogo_servicios.sql
 ```
 
 ---
@@ -139,7 +133,7 @@ Puedes usar tanto el software independiente **Oracle SQL Developer Desktop** com
 | **Name (Nombre de Conexión)** | `Rosas de Guadalupe - Local` | O el nombre que prefieras |
 | **Authentication Type** | `Default` | - |
 | **Username (Usuario)** | `ROSAS_ADMIN` | El usuario creado en el Paso 3 |
-| **Password (Contraseña)** | `Mariachi2026!` | Marcar casilla *"Guardar Contraseña"* |
+| **Password (Contraseña)** | La definida localmente; no incluirla en el repositorio| Marcar casilla *"Guardar Contraseña"* |
 | **Connection Type** | `Basic` | - |
 | **Role** | `default` | **NO** usar SYSDBA |
 | **Hostname** | `localhost` | O `127.0.0.1` |
@@ -195,15 +189,16 @@ Debes ver las **11 tablas del sistema**:
 
 El archivo `.env` contiene las variables de entorno locales de conexión (está protegido en `.gitignore` para no subir secretos al repositorio).
 
-1. Crea tu archivo local a partir de la plantilla:
+1. Crea `backend/.env` si todavía no existe y ábrelo para editar:
 ```powershell
-Copy-Item backend/.env.example backend/.env
+if (-not (Test-Path backend\.env)) { New-Item -Path backend\.env -ItemType File | Out-Null }
+code backend\.env
 ```
 
-2. Verifica que `backend/.env` contenga la siguiente configuración:
+2. Agrega la configuración de conexión. Reemplaza el marcador por la contraseña que elegiste localmente; no la compartas ni la subas al repositorio:
 ```env
 ORACLE_USER=ROSAS_ADMIN
-ORACLE_PASSWORD=Mariachi2026!
+ORACLE_PASSWORD="TU_CONTRASENA_LOCAL"
 ORACLE_HOST=localhost
 ORACLE_PORT=1521
 ORACLE_SERVICE_NAME=XEPDB1
@@ -211,8 +206,13 @@ ANTICIPO_PERCENTAGE=0.50
 COMISION_TARJETA_PERCENTAGE=0.05
 FLASK_DEBUG=1
 PORT=5000
-SECRET_KEY=cambia-esta-clave-en-produccion
+SECRET_KEY=PEGA_AQUI_UNA_CLAVE_ALEATORIA_DE_64_CARACTERES
+ADMIN_USERNAME=administradora
+ADMIN_PASSWORD_HASH=PEGA_AQUI_EL_HASH_GENERADO
+SESSION_COOKIE_SECURE=0
 ```
+
+La clave secreta y el hash deben ser únicos por entorno. No pongas la contraseña de administración en `.env`: guarda solo su hash. En el Paso 6 se generan ambos valores; copia cada resultado en su variable correspondiente antes de iniciar Flask. La cuenta configurada en `ADMIN_USERNAME` es la única cuenta administrativa: no existe registro ni creación de usuarios desde la web. En desarrollo local por HTTP, deja `SESSION_COOKIE_SECURE=0`; para publicar bajo HTTPS, usa `SESSION_COOKIE_SECURE=1` y `FLASK_DEBUG=0`.
 
 ---
 
@@ -225,7 +225,14 @@ py -m pip install -r requirements.txt
 ```
 *(Las librerías principales son: `flask`, `flask-cors`, `oracledb`, `python-dotenv`).*
 
-2. Inicia el servidor Flask:
+2. Genera los valores de seguridad. El segundo comando solicita la contraseña sin mostrarla:
+```powershell
+py -c "import secrets; print(secrets.token_hex(32))"
+py -c "from getpass import getpass; from werkzeug.security import generate_password_hash; print(generate_password_hash(getpass('Contraseña de administración: ')))"
+```
+Copia los resultados a `SECRET_KEY` y `ADMIN_PASSWORD_HASH` en `.env`. No compartas estos valores.
+
+3. Inicia el servidor Flask:
 ```powershell
 py run.py
 ```
@@ -235,7 +242,7 @@ Verás un mensaje en consola indicando:
 Servidor backend ejecutándose en http://localhost:5000
 ```
 
-3. **Verificación de Salud (Health Check):**
+4. **Verificación de Salud (Health Check):**
 Abre una nueva ventana de PowerShell o tu navegador y consulta:
 ```powershell
 Invoke-RestMethod -Uri "http://localhost:5000/api/health" -Method GET
@@ -252,12 +259,13 @@ Invoke-RestMethod -Uri "http://localhost:5000/api/health" -Method GET
 
 ---
 
-## Paso 7: Abrir y Probar el Frontend
+## Paso 7: Abrir y Probar la Aplicación
 
-1. Abre el archivo `frontend/public/index.html` en Google Chrome o Microsoft Edge (puedes hacer doble clic en el archivo o usar la extensión *Live Server* de VS Code).
+1. Abre `http://localhost:5000` en Google Chrome o Microsoft Edge. Flask sirve el frontend y la API desde el mismo origen para mantener protegida la sesión administrativa; no abras el HTML directamente ni uses Live Server para este flujo.
 2. Verifica en la esquina superior derecha que el badge indique:
    * **`Backend: Conectado (Flask)`** (en verde/dorado).
-3. Prueba la calculadora interactiva de presupuestos:
+3. Para entrar a administración, pulsa **Sesión de administración** e inicia sesión con `ADMIN_USERNAME` y la contraseña cuyo hash configuraste. El calendario muestra únicamente contratos leídos de Oracle; si Oracle no está disponible, se informa el error y no se muestran datos ficticios.
+4. Prueba la calculadora interactiva de presupuestos:
    * Todos los montos deben figurar en **Soles (S/)** (ejemplo: Subtotal `S/ 2,800.00`, Anticipo 50% `S/ 1,400.00`).
    * Al seleccionar **Tarjeta Crédito / Débito**, debe aplicar exactamente el **5% de comisión** sobre el anticipo (+S/ 70.00).
    * Al seleccionar **Transferencia Bancaria** o **Efectivo**, la comisión debe ser `S/ 0.00`.

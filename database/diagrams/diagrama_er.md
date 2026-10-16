@@ -84,6 +84,7 @@ erDiagram
         NUMBER anticipo_requerido "50% obligatorio (S/)"
         NUMBER saldo_pendiente "50% por liquidar (S/)"
         VARCHAR2 notas_logistica "Acceso, sorpresas, audio"
+        VARCHAR2 metodo_pago_preferido "Método elegido para el anticipo"
         TIMESTAMP fecha_creacion "Auditoría registro"
     }
 

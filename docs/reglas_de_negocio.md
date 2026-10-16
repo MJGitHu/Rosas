@@ -42,13 +42,13 @@ El sistema categoriza la contratación según la naturaleza de la celebración p
 - Ceremonia de honras / responso
 
 ## 5. Cobertura y Viáticos
-- **Local / Regional:** Sin recargo adicional por desplazamiento dentro del perímetro urbano y conurbado establecido.
-- **Nacional (Viaje interprovincial):** Recargo fijo de viáticos de traslado, calculados para cubrir peajes, combustible o pasajes terrestres/aéreos según la distancia.
+- **Dirección del evento:** Se registra la dirección ingresada por el cliente.
+- **Recargos por distancia:** No se aplican por ahora.
 
 ## 6. Logística Incluida
 - **Movilidad del elenco:** TODOS los servicios incluyen transporte y traslado integral de las integrantes y sus instrumentos.
 - **Equipo de sonido propio:** TODOS los servicios incluyen equipamiento de audio y microfonía adaptado a la locación.
-- **Sin costos ocultos:** La logística de traslado y audio se incluye sin cobro adicional inesperado para el anfitrión (salvo viáticos nacionales explícitamente cotizados).
+- **Sin costos ocultos:** Por ahora, no se aplican recargos por distancia en la cotización.
 
 ## 7. Reglas Financieras
 - **Anticipo obligatorio (50%):** Es indispensable el pago del 50% del presupuesto total para congelar la agenda y reservar formalmente la fecha y hora.

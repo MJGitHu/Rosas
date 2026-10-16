@@ -10,6 +10,11 @@ def init_db_pool():
     Inicializa el pool de conexiones a Oracle Database en modo Thin.
     """
     global _pool
+    if not config.ORACLE_PASSWORD:
+        print("[DB ERROR] ORACLE_PASSWORD no está configurada; define las credenciales locales en backend/.env.")
+        _pool = None
+        return
+
     try:
         # Modo Thin activado por defecto (no requiere Oracle Instant Client local)
         _pool = oracledb.create_pool(

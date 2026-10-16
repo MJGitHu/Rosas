@@ -7,14 +7,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../src/css/styles.css">
+  <link rel="stylesheet" href="/frontend/src/css/styles.css">
 </head>
 <body>
   <div class="app-layout">
     <!-- Navegación Superior -->
     <header class="top-nav">
       <div class="nav-brand">
-        <img class="brand-logo" src="images/logo grande.png" alt="Logo de Rosas de Guadalupe">
+        <img class="brand-logo" src="/frontend/public/images/logo grande.png" alt="Logo de Rosas de Guadalupe">
         <div class="brand-titles">
           <h1>Rosas de Guadalupe</h1>
           <p class="brand-tagline">Mariachi Femenino • Plataforma de Gestión y Reservas</p>
@@ -23,6 +23,9 @@
       <div class="nav-status">
         <span class="badge badge-team">6 Músicas en Escena</span>
         <span id="api-status-badge" class="badge badge-api">Backend: Verificando...</span>
+        <button id="admin-session-button" class="btn btn-primary admin-session-button" type="button">
+          Sesión de administración
+        </button>
       </div>
     </header>
 
@@ -55,32 +58,32 @@
           <h3>Conformación Instrumental del Mariachi (6 Integrantes)</h3>
           <div class="ensemble-grid">
             <div class="member-card">
-              <img class="member-photo" src="images/liz.png" alt="Liz, directora musical y voz principal" loading="lazy" decoding="async">
+              <img class="member-photo" src="/frontend/public/images/liz.png" alt="Liz, directora musical y voz principal" loading="lazy" decoding="async">
               <h4>Lissete Rabines</h4>
               <p>Directora Musical & Voz Principal</p>
             </div>
             <div class="member-card">
-              <img class="member-photo" src="images/totis.png" alt="Totis, segunda voz" loading="lazy" decoding="async">
+              <img class="member-photo" src="/frontend/public/images/totis.png" alt="Totis, segunda voz" loading="lazy" decoding="async">
               <h4>Rosa Morera</h4>
               <p>Segunda Voz & Coros</p>
             </div>
             <div class="member-card">
-              <img class="member-photo" src="images/shirley.png" alt="Shirley Ahuaman, primera trompeta" loading="lazy" decoding="async">
+              <img class="member-photo" src="/frontend/public/images/shirley.png" alt="Shirley Ahuaman, primera trompeta" loading="lazy" decoding="async">
               <h4>Shirley Ahuaman</h4>
               <p>Primera Trompeta</p>
             </div>
             <div class="member-card">
-              <img class="member-photo" src="images/rosarin rojo.png" alt="Rosario, segunda trompeta" loading="lazy" decoding="async">
+              <img class="member-photo" src="/frontend/public/images/rosarin rojo.png" alt="Rosario, segunda trompeta" loading="lazy" decoding="async">
               <h4>Rosario Melchor</h4>
               <p>Segunda Trompeta</p>
             </div>
             <div class="member-card">
-              <img class="member-photo" src="images/chary.png" alt="Chary, vihuela tradicional" loading="lazy" decoding="async">
+              <img class="member-photo" src="/frontend/public/images/chary.png" alt="Chary, vihuela tradicional" loading="lazy" decoding="async">
               <h4>Medalith Salazar</h4>
               <p>Vihuela Tradicional</p>
             </div>
             <div class="member-card">
-              <img class="member-photo" src="images/marita.png" alt="Marita Neira, guitarrón" loading="lazy" decoding="async">
+              <img class="member-photo" src="/frontend/public/images/marita.png" alt="Marita Neira, guitarrón" loading="lazy" decoding="async">
               <h4>Marita Neira</h4>
               <p>Guitarrón</p>
             </div>
@@ -159,7 +162,7 @@
         <div class="card card-form">
           <div class="card-header">
             <h2>Calculadora de Contratación & Reserva</h2>
-            <p>Selecciona el servicio, duración y zona para generar tu cotización oficial y anticipo del 50%.</p>
+            <p>Selecciona el servicio, duración y registra la dirección, fecha y hora del evento para cotizar.</p>
           </div>
 
           <form id="quote-form" class="interactive-form">
@@ -192,18 +195,47 @@
             </div>
 
             <div class="form-group">
-              <label for="zone-select">Zona de Cobertura (Logística)</label>
-              <select id="zone-select" class="form-control">
-                <option value="0" selected>Zona Centro / Urbana (Sin recargo)</option>
-                <option value="250">Zona Norte / Periferia Cercana (+S/ 250.00)</option>
-                <option value="250">Zona Sur / Conurbada (+S/ 250.00)</option>
-                <option value="600">Zona Campestre / Foránea (+S/ 600.00)</option>
-              </select>
+              <label for="event-address">Dirección del evento</label>
+              <input type="text" id="event-address" name="direccion_evento" class="form-control" maxlength="250" autocomplete="street-address" placeholder="Ingresa la dirección donde será el evento" required>
+              <small class="field-hint">Por ahora no se aplican recargos por distancia.</small>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="event-date">Fecha del evento</label>
+                <input type="date" id="event-date" name="fecha_evento" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label for="event-time">Hora del evento</label>
+                <input type="time" id="event-time" name="hora_evento" class="form-control" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="client-first-name">Nombre</label>
+                <input type="text" id="client-first-name" name="nombre" class="form-control" maxlength="100" autocomplete="given-name" required>
+              </div>
+              <div class="form-group">
+                <label for="client-last-name">Apellido</label>
+                <input type="text" id="client-last-name" name="apellido" class="form-control" maxlength="100" autocomplete="family-name" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="client-phone">Teléfono</label>
+                <input type="tel" id="client-phone" name="telefono" class="form-control" maxlength="20" autocomplete="tel" required>
+              </div>
+              <div class="form-group">
+                <label for="client-email">Correo electrónico</label>
+                <input type="email" id="client-email" name="email" class="form-control" maxlength="120" autocomplete="email" required>
+              </div>
             </div>
 
             <div class="form-group">
               <label for="details-input">Detalles</label>
-              <textarea id="details-input" name="detalles" class="form-control" rows="5" placeholder="Cuéntanos si necesitas algún servicio adicional u otro detalle para tu evento."></textarea>
+              <textarea id="details-input" name="detalles" class="form-control" rows="5" maxlength="500" placeholder="Cuéntanos si necesitas algún servicio adicional u otro detalle para tu evento."></textarea>
             </div>
 
             <div class="form-group">
@@ -242,61 +274,159 @@
         <!-- Panel de Desglose Financiero -->
         <div class="card card-summary">
           <div class="card-header">
-            <h3>Desglose Financiero de Contratación</h3>
-            <span class="pill-policy">Política 50/50</span>
+            <h3 id="summary-heading">Desglose Financiero de Contratación</h3>
+            <span id="summary-badge" class="pill-policy">Política 50/50</span>
           </div>
 
-          <div class="breakdown-list">
-            <div class="breakdown-row">
-              <span>Subtotal Presentación Musical:</span>
-              <strong id="summary-subtotal">S/ 680.00</strong>
-            </div>
-            <div class="breakdown-row">
-              <span>Recargo Logístico / Traslado:</span>
-              <strong id="summary-logistics">S/ 0.00</strong>
-            </div>
-            <div class="breakdown-row highlight">
-              <span>Presupuesto Total del Evento:</span>
-              <strong id="summary-total">S/ 680.00</strong>
-            </div>
-            <hr class="divider">
-            <div class="breakdown-row alert-row">
-              <div>
-                <strong>Anticipo para Bloqueo de Fecha (50%):</strong>
-                <small class="block-hint">Requerido para apartar la agenda</small>
+          <div id="financial-summary">
+            <div class="breakdown-list">
+              <div class="breakdown-row">
+                <span>Subtotal Presentación Musical:</span>
+                <strong id="summary-subtotal">S/ 680.00</strong>
               </div>
-              <strong id="summary-advance" class="text-gold">S/ 340.00</strong>
+              <div class="breakdown-row">
+                <span>Recargo por distancia (por ahora sin cargo):</span>
+                <strong id="summary-logistics">S/ 0.00</strong>
+              </div>
+              <div class="breakdown-row highlight">
+                <span>Presupuesto Total del Evento:</span>
+                <strong id="summary-total">S/ 680.00</strong>
+              </div>
+              <hr class="divider">
+              <div class="breakdown-row alert-row">
+                <div>
+                  <strong>Anticipo para Bloqueo de Fecha (50%):</strong>
+                  <small class="block-hint">Requerido para apartar la agenda</small>
+                </div>
+                <strong id="summary-advance" class="text-gold">S/ 340.00</strong>
+              </div>
+              <div class="breakdown-row">
+                <span>Comisión de Pasarela (si aplica):</span>
+                <strong id="summary-fee">S/ 0.00</strong>
+              </div>
+              <div class="breakdown-row total-pay-now">
+                <span>Total a Liquidar Hoy (Anticipo):</span>
+                <span id="summary-pay-now" class="amount-large">S/ 340.00</span>
+              </div>
+              <div class="breakdown-row settlement-row">
+                <span>Saldo Pendiente al Llegar al Evento (50%):</span>
+                <strong id="summary-balance">S/ 340.00</strong>
+              </div>
             </div>
-            <div class="breakdown-row">
-              <span>Comisión de Pasarela (si aplica):</span>
-              <strong id="summary-fee">S/ 0.00</strong>
-            </div>
-            <div class="breakdown-row total-pay-now">
-              <span>Total a Liquidar Hoy (Anticipo):</span>
-              <span id="summary-pay-now" class="amount-large">S/ 340.00</span>
-            </div>
-            <div class="breakdown-row settlement-row">
-              <span>Saldo Pendiente al Llegar al Evento (50%):</span>
-              <strong id="summary-balance">S/ 340.00</strong>
+            <div class="summary-actions">
+              <button id="btn-proceed-booking" type="button" class="btn btn-accent full-width">
+                Pagar
+              </button>
             </div>
           </div>
 
-          <div class="summary-actions">
-            <button id="btn-proceed-booking" class="btn btn-accent full-width">
-              Continuar con la Reserva y Datos del Evento
-            </button>
+          <div id="contract-summary" class="contract-summary" hidden>
+            <dl class="contract-details">
+              <div><dt>Cliente</dt><dd id="contract-client"></dd></div>
+              <div><dt>Contacto</dt><dd id="contract-contact"></dd></div>
+              <div><dt>Servicio</dt><dd id="contract-service"></dd></div>
+              <div><dt>Duración</dt><dd id="contract-duration"></dd></div>
+              <div><dt>Dirección</dt><dd id="contract-address"></dd></div>
+              <div><dt>Fecha y hora</dt><dd id="contract-datetime"></dd></div>
+              <div><dt>Detalles</dt><dd id="contract-notes"></dd></div>
+              <div><dt>Método elegido</dt><dd id="contract-payment"></dd></div>
+              <div><dt>Total del contrato</dt><dd id="contract-total"></dd></div>
+              <div><dt>Anticipo</dt><dd id="contract-advance"></dd></div>
+              <div><dt>Comisión de pasarela</dt><dd id="contract-fee"></dd></div>
+              <div><dt>Total a pagar hoy</dt><dd id="contract-pay-now"></dd></div>
+              <div><dt>Saldo pendiente</dt><dd id="contract-balance"></dd></div>
+            </dl>
+
+            <div id="qr-payment-section" class="qr-payment-section" hidden>
+              <h4>Pago electrónico</h4>
+              <div class="qr-placeholder" role="img" aria-label="Espacio reservado para el código QR de pago">
+                <span>QR de pago</span>
+                <small>Disponible cuando se integre el procesamiento de pagos.</small>
+              </div>
+            </div>
+
+            <p id="contract-status" class="contract-status" role="status" aria-live="polite" hidden></p>
+            <div class="summary-actions contract-actions">
+              <button id="btn-save-cash-contract" type="button" class="btn btn-accent full-width" hidden>
+                Continuar
+              </button>
+              <button id="btn-back-to-quote" type="button" class="btn btn-primary full-width">
+                Volver a la cotización
+              </button>
+            </div>
           </div>
         </div>
+      </section>
+
+      <section id="admin-dashboard" class="admin-dashboard card" hidden>
+        <div class="admin-dashboard-header">
+          <div>
+            <h2>Calendario de contratos</h2>
+            <p>Selecciona un contrato para consultar sus datos.</p>
+          </div>
+          <div class="calendar-controls">
+            <button id="calendar-previous" class="btn btn-secondary" type="button" aria-label="Mes anterior">‹</button>
+            <h3 id="calendar-month-label" aria-live="polite"></h3>
+            <button id="calendar-next" class="btn btn-secondary" type="button" aria-label="Mes siguiente">›</button>
+          </div>
+        </div>
+        <p id="admin-calendar-status" class="admin-status" role="status" aria-live="polite" hidden></p>
+        <div class="calendar-weekdays" aria-hidden="true">
+          <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+        </div>
+        <div id="calendar-grid" class="calendar-grid" aria-label="Calendario mensual"></div>
+        <section id="admin-contract-details" class="admin-contract-details" aria-live="polite" hidden>
+          <h3>Detalle del contrato</h3>
+          <dl class="contract-details">
+            <div><dt>Código</dt><dd id="admin-detail-code"></dd></div>
+            <div><dt>Cliente</dt><dd id="admin-detail-client"></dd></div>
+            <div><dt>Contacto</dt><dd id="admin-detail-contact"></dd></div>
+            <div><dt>Servicio</dt><dd id="admin-detail-service"></dd></div>
+            <div><dt>Fecha y hora</dt><dd id="admin-detail-datetime"></dd></div>
+            <div><dt>Dirección</dt><dd id="admin-detail-address"></dd></div>
+            <div><dt>Tipo de evento</dt><dd id="admin-detail-type"></dd></div>
+            <div><dt>Estado</dt><dd id="admin-detail-status"></dd></div>
+            <div><dt>Duración</dt><dd id="admin-detail-duration"></dd></div>
+            <div><dt>Método de pago</dt><dd id="admin-detail-payment"></dd></div>
+            <div><dt>Subtotal</dt><dd id="admin-detail-subtotal"></dd></div>
+            <div><dt>Recargo</dt><dd id="admin-detail-surcharge"></dd></div>
+            <div><dt>Total</dt><dd id="admin-detail-total"></dd></div>
+            <div><dt>Anticipo requerido</dt><dd id="admin-detail-advance"></dd></div>
+            <div><dt>Saldo pendiente</dt><dd id="admin-detail-balance"></dd></div>
+            <div><dt>Detalles</dt><dd id="admin-detail-notes"></dd></div>
+          </dl>
+        </section>
       </section>
     </main>
 
     <!-- Footer -->
     <footer class="app-footer">
-      <p><strong>Rosas de Guadalupe Management System</strong> • Proyecto Jira: <code>RS</code> • Sprint Velocity: 20 SP</p>
-      <p class="copyright">Base de datos conectada a Oracle Database XE/Cloud. Todos los derechos reservados.</p>
+      <p><strong>Rosas de Guadalupe Management System</strong></p>
     </footer>
   </div>
 
-  <script src="../src/js/app.js"></script>
+  <dialog id="admin-login-dialog" class="admin-login-dialog" aria-labelledby="admin-login-title">
+    <form id="admin-login-form" class="interactive-form">
+      <div class="card-header">
+        <h2 id="admin-login-title">Sesión de administración</h2>
+        <p>Acceso exclusivo para la administradora.</p>
+      </div>
+      <div class="form-group">
+        <label for="admin-username">Usuario</label>
+        <input id="admin-username" name="username" class="form-control" autocomplete="username" required>
+      </div>
+      <div class="form-group">
+        <label for="admin-password">Contraseña</label>
+        <input id="admin-password" name="password" type="password" class="form-control" autocomplete="current-password" required>
+      </div>
+      <p id="admin-login-status" class="admin-status" role="alert" aria-live="assertive" hidden></p>
+      <div class="summary-actions">
+        <button class="btn btn-secondary" id="admin-login-cancel" type="button">Cancelar</button>
+        <button class="btn btn-primary" id="admin-login-submit" type="submit">Iniciar sesión</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/frontend/src/js/app.js"></script>
 </body>
 </html>

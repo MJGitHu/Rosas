@@ -34,7 +34,7 @@ INSERT INTO eventos_reservas (
 ) VALUES (
     'RS-2026-001',
     (SELECT id_cliente FROM clientes WHERE email = 'beatriz.mendoza@email.com'),
-    (SELECT id_formato FROM formatos_mariachi WHERE nombre_formato = '1 hora'),
+    (SELECT id_formato FROM formatos_mariachi WHERE nombre_formato = 'Mariachi completo'),
     (SELECT id_zona FROM zonas_cobertura WHERE nombre_zona LIKE '%Centro%'),
     TO_DATE('2026-10-25', 'YYYY-MM-DD'),
     '20:00',
@@ -90,7 +90,7 @@ INSERT INTO eventos_reservas (
 ) VALUES (
     'RS-2026-002',
     (SELECT id_cliente FROM clientes WHERE email = 'carlos.navarro@email.com'),
-    (SELECT id_formato FROM formatos_mariachi WHERE nombre_formato = '40 minutos'),
+    (SELECT id_formato FROM formatos_mariachi WHERE nombre_formato = 'Mariachi completo'),
     (SELECT id_zona FROM zonas_cobertura WHERE nombre_zona LIKE '%Norte%'),
     TO_DATE('2026-10-28', 'YYYY-MM-DD'),
     '21:30',
@@ -146,7 +146,7 @@ INSERT INTO eventos_reservas (
 ) VALUES (
     'RS-2026-003',
     (SELECT id_cliente FROM clientes WHERE email = 'lucia.fernandez@email.com'),
-    (SELECT id_formato FROM formatos_mariachi WHERE nombre_formato = '2 horas'),
+    (SELECT id_formato FROM formatos_mariachi WHERE nombre_formato = 'Mariachi completo'),
     (SELECT id_zona FROM zonas_cobertura WHERE nombre_zona LIKE '%Campestre%'),
     TO_DATE('2026-11-05', 'YYYY-MM-DD'),
     '18:00',

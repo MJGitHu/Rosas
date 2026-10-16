@@ -47,7 +47,7 @@ CREATE TABLE eventos_reservas (
     id_zona NUMBER NOT NULL,
     fecha_evento DATE NOT NULL,
     hora_inicio VARCHAR2(10) NOT NULL,
-    duracion_horas NUMBER(3,1) NOT NULL,
+    duracion_horas NUMBER(4,2) NOT NULL,
     direccion_evento VARCHAR2(250) NOT NULL,
     tipo_evento VARCHAR2(50), -- Boda, Cumpleaños, Serenata, Graduación, Corporativo
     estado_reserva VARCHAR2(20) DEFAULT 'COTIZADA' 
@@ -58,6 +58,8 @@ CREATE TABLE eventos_reservas (
     anticipo_requerido NUMBER(10,2) NOT NULL, -- 50% del total
     saldo_pendiente NUMBER(10,2) NOT NULL,    -- 50% restante
     notas_logistica VARCHAR2(500),
+    metodo_pago_preferido VARCHAR2(30) DEFAULT 'TRANSFERENCIA' NOT NULL
+        CHECK (metodo_pago_preferido IN ('TRANSFERENCIA', 'EFECTIVO', 'TARJETA_CREDITO')),
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_reserva_cliente FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente),
     CONSTRAINT fk_reserva_formato FOREIGN KEY (id_formato) REFERENCES formatos_mariachi(id_formato),
