@@ -25,13 +25,13 @@ VALUES ('Mariana Domínguez', 'Guitarrón', 'N', 'S');
 
 -- 2. FORMATOS MUSICALES
 INSERT INTO formatos_mariachi (nombre_formato, descripcion, num_musicos, precio_base_hora, incluye_equipo_audio, activo)
-VALUES ('Serenata Tradicional (45 min)', 'Ideal para sorpresas de cumpleaños, reconciliación o aniversario (7 a 8 canciones)', 6, 2200.00, 'N', 'S');
+VALUES ('40 minutos', 'Ideal para sorpresas de cumpleaños, reconciliación o aniversario (7 a 8 canciones)', 6, 2200.00, 'N', 'S');
 
 INSERT INTO formatos_mariachi (nombre_formato, descripcion, num_musicos, precio_base_hora, incluye_equipo_audio, activo)
-VALUES ('Show Completo 1 Hora', 'Presentación formal completa de 60 minutos con repertorio clásico y bailable', 6, 2800.00, 'N', 'S');
+VALUES ('1 hora', 'Presentación formal completa de 60 minutos con repertorio clásico y bailable', 6, 2800.00, 'N', 'S');
 
 INSERT INTO formatos_mariachi (nombre_formato, descripcion, num_musicos, precio_base_hora, incluye_equipo_audio, activo)
-VALUES ('Show Premium 2 Horas', 'Presentación extendida de 2 horas con animación, dedicatorias y equipo de microfonía', 6, 5200.00, 'S', 'S');
+VALUES ('2 horas', 'Presentación extendida de 2 horas con animación, dedicatorias y equipo de microfonía', 6, 5200.00, 'S', 'S');
 
 -- 3. ZONAS DE COBERTURA Y RECARGOS LOGÍSTICOS
 INSERT INTO zonas_cobertura (nombre_zona, descripcion, recargo_transporte, tiempo_estimado_traslado_min, activo)

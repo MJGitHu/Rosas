@@ -13,7 +13,9 @@ Enlace al tablero: https://upao-team-e2081s7v.atlassian.net/jira/software/projec
 
 ## Características Principales (Features)
 
-- **Selección Dinámica de Formato Musical**: Catálogo interactivo de servicios (Serenata Tradicional de 45 min, Show Estándar de 1 hora, Show Premium de 2 horas con amplificación).
+- **Selección de Servicios y Formatos**: Mariachi completo, Express 1, Express 2, Express dúo y Solista; cotización para duraciones de 30, 40 o 60 minutos.
+- **Detalles del Evento**: Campo de texto para describir servicios adicionales o solicitudes especiales.
+- **Horas Adicionales**: Se inician en 0; cada hora extra cuesta S/ 60 menos que la tarifa de 60 minutos del formato seleccionado.
 - **Calculadora en Tiempo Real**: Ajuste por duración de presentación y recálculo automático de honorarios.
 - **Validación de Cobertura y Logística**: Cálculo de recargos por desplazamiento según la zona geográfica (Urbana, Periferia Norte/Sur o Campestre/Foránea).
 - **Gestión Financiera Escalonada (Regla 50/50)**:

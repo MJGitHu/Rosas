@@ -25,7 +25,7 @@ COMMIT;
 INSERT INTO clientes (nombre, apellido, telefono, email, direccion_referencia)
 VALUES ('Beatriz', 'Mendoza', '981234567', 'beatriz.mendoza@email.com', 'Urb. San Andrés, Trujillo');
 
--- 1.2 Reserva 1: Show Completo 1 Hora (S/ 2,800.00) en Zona Centro (S/ 0.00). Total: S/ 2,800.00
+-- 1.2 Reserva 1: 1 hora (S/ 2,800.00) en Zona Centro (S/ 0.00). Total: S/ 2,800.00
 INSERT INTO eventos_reservas (
     codigo_reserva, id_cliente, id_formato, id_zona, fecha_evento,
     hora_inicio, duracion_horas, direccion_evento, tipo_evento, estado_reserva,
@@ -34,7 +34,7 @@ INSERT INTO eventos_reservas (
 ) VALUES (
     'RS-2026-001',
     (SELECT id_cliente FROM clientes WHERE email = 'beatriz.mendoza@email.com'),
-    (SELECT id_formato FROM formatos_mariachi WHERE nombre_formato LIKE '%1 Hora%'),
+    (SELECT id_formato FROM formatos_mariachi WHERE nombre_formato = '1 hora'),
     (SELECT id_zona FROM zonas_cobertura WHERE nombre_zona LIKE '%Centro%'),
     TO_DATE('2026-10-25', 'YYYY-MM-DD'),
     '20:00',
@@ -81,7 +81,7 @@ VALUES (
 INSERT INTO clientes (nombre, apellido, telefono, email, direccion_referencia)
 VALUES ('Carlos', 'Navarro', '998765432', 'carlos.navarro@email.com', 'Urb. Primavera, Trujillo');
 
--- 2.2 Reserva 2: Serenata Tradicional (S/ 2,200.00) + Recargo Zona Norte (S/ 250.00). Total: S/ 2,450.00
+-- 2.2 Reserva 2: 40 minutos (S/ 2,200.00) + Recargo Zona Norte (S/ 250.00). Total: S/ 2,450.00
 INSERT INTO eventos_reservas (
     codigo_reserva, id_cliente, id_formato, id_zona, fecha_evento,
     hora_inicio, duracion_horas, direccion_evento, tipo_evento, estado_reserva,
@@ -90,7 +90,7 @@ INSERT INTO eventos_reservas (
 ) VALUES (
     'RS-2026-002',
     (SELECT id_cliente FROM clientes WHERE email = 'carlos.navarro@email.com'),
-    (SELECT id_formato FROM formatos_mariachi WHERE nombre_formato LIKE '%Serenata%'),
+    (SELECT id_formato FROM formatos_mariachi WHERE nombre_formato = '40 minutos'),
     (SELECT id_zona FROM zonas_cobertura WHERE nombre_zona LIKE '%Norte%'),
     TO_DATE('2026-10-28', 'YYYY-MM-DD'),
     '21:30',
@@ -137,7 +137,7 @@ VALUES (
 INSERT INTO clientes (nombre, apellido, telefono, email, direccion_referencia)
 VALUES ('Lucía', 'Fernández', '973344556', 'lucia.fernandez@email.com', 'Campiña de Moche, La Libertad');
 
--- 3.2 Reserva 3: Show Premium 2 Horas (S/ 5,200.00) + Recargo Campestre (S/ 600.00). Total: S/ 5,800.00
+-- 3.2 Reserva 3: 2 horas (S/ 5,200.00) + Recargo Campestre (S/ 600.00). Total: S/ 5,800.00
 INSERT INTO eventos_reservas (
     codigo_reserva, id_cliente, id_formato, id_zona, fecha_evento,
     hora_inicio, duracion_horas, direccion_evento, tipo_evento, estado_reserva,
@@ -146,7 +146,7 @@ INSERT INTO eventos_reservas (
 ) VALUES (
     'RS-2026-003',
     (SELECT id_cliente FROM clientes WHERE email = 'lucia.fernandez@email.com'),
-    (SELECT id_formato FROM formatos_mariachi WHERE nombre_formato LIKE '%Premium%'),
+    (SELECT id_formato FROM formatos_mariachi WHERE nombre_formato = '2 horas'),
     (SELECT id_zona FROM zonas_cobertura WHERE nombre_zona LIKE '%Campestre%'),
     TO_DATE('2026-11-05', 'YYYY-MM-DD'),
     '18:00',

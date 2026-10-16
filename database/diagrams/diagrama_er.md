@@ -40,7 +40,7 @@ erDiagram
 
     FORMATOS_MARIACHI {
         NUMBER id_formato PK "Identity"
-        VARCHAR2 nombre_formato "Serenata, 1 Hora, 2 Horas"
+        VARCHAR2 nombre_formato "Mariachi completo, Express 1/2, Express dúo, Solista"
         VARCHAR2 descripcion "Detalle del espectáculo"
         NUMBER num_musicos "6 integrantes fijas"
         NUMBER precio_base_hora "Precio en Soles S/"

@@ -5,6 +5,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const formatSelect = document.getElementById("format-select");
   const durationInput = document.getElementById("duration-input");
+  const durationSelect = document.getElementById("duration-select");
   const zoneSelect = document.getElementById("zone-select");
   const paymentCards = document.querySelectorAll(".payment-card");
   const btnRecalculate = document.getElementById("btn-recalculate");
@@ -44,8 +45,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Cálculo de cotización (con fallback local o vía API Flask)
   const calculateQuote = async () => {
-    const basePrice = parseFloat(formatSelect.value) || 2800;
-    const duration = parseFloat(durationInput.value) || 1;
+    const selectedFormat = formatSelect.options[formatSelect.selectedIndex];
+    const selectedDuration = durationSelect.value;
+    const basePrice = parseFloat(selectedFormat.getAttribute(`data-price-${selectedDuration}`));
+    const oneHourPrice = parseFloat(selectedFormat.getAttribute("data-price-60"));
+    const requestedAdditionalHours = parseInt(durationInput.value, 10);
+    const additionalHours = Number.isFinite(requestedAdditionalHours)
+      ? Math.min(6, Math.max(0, requestedAdditionalHours))
+      : 0;
+    if (durationInput.value !== String(additionalHours)) {
+      durationInput.value = additionalHours;
+    }
+    const durationHours = parseInt(selectedDuration, 10) / 60 + additionalHours;
+    const additionalDurationCharge = additionalHours * (oneHourPrice - 60);
     const zoneSurcharge = parseFloat(zoneSelect.value) || 0;
     const paymentMethod = getSelectedPaymentMethod();
 
@@ -56,7 +68,9 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           precio_base_hora: basePrice,
-          duracion_horas: duration,
+          duracion_horas: durationHours,
+          monto_base_formato: basePrice,
+          recargo_duracion: additionalDurationCharge,
           recargo_zona: zoneSurcharge,
           metodo_pago: paymentMethod,
         }),
@@ -81,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Cálculo reactivo en el navegador
-    const subtotal = basePrice * duration;
+    const subtotal = basePrice + additionalDurationCharge;
     const total = subtotal + zoneSurcharge;
     const advance = Math.round(total * 0.5 * 100) / 100;
     const balance = total - advance;
@@ -125,6 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Event Listeners
   formatSelect.addEventListener("change", calculateQuote);
+  durationSelect.addEventListener("change", calculateQuote);
   durationInput.addEventListener("input", calculateQuote);
   zoneSelect.addEventListener("change", calculateQuote);
   btnRecalculate.addEventListener("click", calculateQuote);

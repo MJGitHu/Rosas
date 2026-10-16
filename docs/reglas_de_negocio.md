@@ -12,17 +12,23 @@ Documento oficial que consolida la fuente de verdad técnica y de negocio para l
   - 2 cantantes (voz principal y coros/animación)
 
 ## 2. Formatos de Presentación
-El catálogo comercial dispone de 4 formatos estructurados para adaptarse a distintos presupuestos y tipos de locación:
-- **Mariachi Completo:** 6 integrantes en escena (alineación tradicional completa con 2 trompetas, vihuela, guitarrón y 2 cantantes).
-- **Cuarteto Acústico:** 4 integrantes para eventos íntimos o espacios reducidos.
-- **Dúo de Cantantes con Pistas:** 2 cantantes interpretando repertorio de mariachi o bailable/tropical con pistas instrumentales profesionales.
-- **Cantante Solista con Pistas:** 1 cantante con acompañamiento digital.
+El catálogo comercial ofrece estos servicios y tarifas según la duración:
+
+| Servicio / Formato | Integrantes | 30 minutos | 40 minutos | 60 minutos |
+| --- | ---: | ---: | ---: | ---: |
+| Mariachi completo | 6 | S/ 380 | S/ 480 | S/ 680 |
+| Express 1 | 5 | S/ 340 | S/ 420 | S/ 600 |
+| Express 2 | 4 | S/ 300 | S/ 360 | S/ 500 |
+| Express dúo | - | S/ 250 | S/ 280 | S/ 420 |
+| Solista | 1 | S/ 180 | S/ 220 | S/ 320 |
+
+Cada hora adicional se cobra al precio de 60 minutos del formato seleccionado menos S/ 60.
 
 ## 3. Duraciones Permitidas
 Las presentaciones se configuran estrictamente bajo los siguientes bloques temporales estandarizados:
-- **30 minutos** (bloque corto / express)
-- **40 minutos** (formato serenata estándar: 7 a 8 canciones)
-- **60 minutos (1 hora)** (presentación formal completa)
+- **30 minutos**
+- **40 minutos**
+- **60 minutos (1 hora)**
 
 ## 4. Tipos de Eventos / Ocasiones
 El sistema categoriza la contratación según la naturaleza de la celebración para adecuar el vestuario, animación y repertorio protocolar:

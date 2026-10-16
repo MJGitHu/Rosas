@@ -159,41 +159,58 @@
         <div class="card card-form">
           <div class="card-header">
             <h2>Calculadora de Contratación & Reserva</h2>
-            <p>Selecciona el formato, duración y zona para generar tu cotización oficial y anticipo del 50%.</p>
+            <p>Selecciona el servicio, duración y zona para generar tu cotización oficial y anticipo del 50%.</p>
           </div>
 
           <form id="quote-form" class="interactive-form">
             <div class="form-group">
-              <label for="format-select">Formato Musical</label>
+              <label for="format-select">Servicio / Formato</label>
               <select id="format-select" class="form-control">
-                <option value="2200" data-format="Serenata">Serenata Tradicional (45 min - 7-8 canciones)</option>
-                <option value="2800" data-format="1hora" selected>Show Estándar (1 Hora Completa)</option>
-                <option value="5200" data-format="2horas">Show Premium (2 Horas con Equipo de Audio)</option>
+                <option value="mariachi" data-price-30="380" data-price-40="480" data-price-60="680" selected>Mariachi completo (6 integrantes)</option>
+                <option value="express-1" data-price-30="340" data-price-40="420" data-price-60="600">Express 1 (5 integrantes)</option>
+                <option value="express-2" data-price-30="300" data-price-40="360" data-price-60="500">Express 2 (4 integrantes)</option>
+                <option value="express-duo" data-price-30="250" data-price-40="280" data-price-60="420">Express dúo</option>
+                <option value="solista" data-price-30="180" data-price-40="220" data-price-60="320">Solista</option>
               </select>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label for="duration-input">Duración adicional (Horas)</label>
-                <input type="number" id="duration-input" class="form-control" min="1" max="6" value="1" step="0.5">
+                <label for="duration-select">Duración del servicio</label>
+                <select id="duration-select" class="form-control">
+                  <option value="30">30 minutos</option>
+                  <option value="40">40 minutos</option>
+                  <option value="60" selected>60 minutos</option>
+                </select>
               </div>
 
               <div class="form-group">
-                <label for="zone-select">Zona de Cobertura (Logística)</label>
-                <select id="zone-select" class="form-control">
-                  <option value="0" selected>Zona Centro / Urbana (Sin recargo)</option>
-                  <option value="250">Zona Norte / Periferia Cercana (+S/ 250.00)</option>
-                  <option value="250">Zona Sur / Conurbada (+S/ 250.00)</option>
-                  <option value="600">Zona Campestre / Foránea (+S/ 600.00)</option>
-                </select>
+                <label for="duration-input">Horas adicionales</label>
+                <input type="number" id="duration-input" class="form-control" min="0" max="6" value="0" step="1">
+                <small class="field-hint">Cada hora extra cuesta S/ 60 menos que el precio de 60 minutos del formato.</small>
               </div>
             </div>
 
             <div class="form-group">
-              <label>Método de Pago del Anticipo</label>
+              <label for="zone-select">Zona de Cobertura (Logística)</label>
+              <select id="zone-select" class="form-control">
+                <option value="0" selected>Zona Centro / Urbana (Sin recargo)</option>
+                <option value="250">Zona Norte / Periferia Cercana (+S/ 250.00)</option>
+                <option value="250">Zona Sur / Conurbada (+S/ 250.00)</option>
+                <option value="600">Zona Campestre / Foránea (+S/ 600.00)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="details-input">Detalles</label>
+              <textarea id="details-input" name="detalles" class="form-control" rows="5" placeholder="Cuéntanos si necesitas algún servicio adicional u otro detalle para tu evento."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="payment-method-transfer">Método de Pago del Anticipo</label>
               <div class="payment-methods-grid">
                 <label class="payment-card selected">
-                  <input type="radio" name="payment-method" value="TRANSFERENCIA" checked>
+                  <input type="radio" id="payment-method-transfer" name="payment-method" value="TRANSFERENCIA" checked>
                   <div class="method-info">
                     <span class="method-title">Transferencia Bancaria</span>
                     <span class="method-fee">0% comisión adicional</span>
@@ -232,7 +249,7 @@
           <div class="breakdown-list">
             <div class="breakdown-row">
               <span>Subtotal Presentación Musical:</span>
-              <strong id="summary-subtotal">S/ 2,800.00</strong>
+              <strong id="summary-subtotal">S/ 680.00</strong>
             </div>
             <div class="breakdown-row">
               <span>Recargo Logístico / Traslado:</span>
@@ -240,7 +257,7 @@
             </div>
             <div class="breakdown-row highlight">
               <span>Presupuesto Total del Evento:</span>
-              <strong id="summary-total">S/ 2,800.00</strong>
+              <strong id="summary-total">S/ 680.00</strong>
             </div>
             <hr class="divider">
             <div class="breakdown-row alert-row">
@@ -248,7 +265,7 @@
                 <strong>Anticipo para Bloqueo de Fecha (50%):</strong>
                 <small class="block-hint">Requerido para apartar la agenda</small>
               </div>
-              <strong id="summary-advance" class="text-gold">S/ 1,400.00</strong>
+              <strong id="summary-advance" class="text-gold">S/ 340.00</strong>
             </div>
             <div class="breakdown-row">
               <span>Comisión de Pasarela (si aplica):</span>
@@ -256,11 +273,11 @@
             </div>
             <div class="breakdown-row total-pay-now">
               <span>Total a Liquidar Hoy (Anticipo):</span>
-              <span id="summary-pay-now" class="amount-large">S/ 1,400.00</span>
+              <span id="summary-pay-now" class="amount-large">S/ 340.00</span>
             </div>
             <div class="breakdown-row settlement-row">
               <span>Saldo Pendiente al Llegar al Evento (50%):</span>
-              <strong id="summary-balance">S/ 1,400.00</strong>
+              <strong id="summary-balance">S/ 340.00</strong>
             </div>
           </div>
 

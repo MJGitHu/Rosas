@@ -6,11 +6,24 @@ Reglas de Negocio:
 3. Comisión por procesamiento de tarjeta de crédito/débito (5% configurable).
 4. Recargos logísticos por distancia/zona de cobertura.
 """
+from typing import Optional
 
 from app.config.payment_methods import get_comision
 
-def calcular_cotizacion(precio_base_hora: float, duracion_horas: float, recargo_zona: float = 0.0, metodo_pago: str = "TRANSFERENCIA") -> dict:
-    subtotal = round(precio_base_hora * duracion_horas, 2)
+def calcular_cotizacion(
+    precio_base_hora: float,
+    duracion_horas: float,
+    recargo_zona: float = 0.0,
+    metodo_pago: str = "TRANSFERENCIA",
+    monto_base_formato: Optional[float] = None,
+    recargo_duracion: float = 0.0,
+) -> dict:
+    monto_presentacion = (
+        monto_base_formato
+        if monto_base_formato is not None
+        else precio_base_hora * duracion_horas
+    )
+    subtotal = round(monto_presentacion + recargo_duracion, 2)
     monto_total = round(subtotal + recargo_zona, 2)
     
     # 50% de anticipo y 50% de saldo
