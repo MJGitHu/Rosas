@@ -16,7 +16,22 @@
       <div class="nav-brand">
         <img class="brand-logo" src="/frontend/public/images/logo grande.png" alt="Logo de Rosas de Guadalupe">
         <div class="brand-titles">
-          <h1>Rosas de Guadalupe</h1>
+          <div class="brand-title-row">
+            <h1>Rosas de Guadalupe</h1>
+            <a
+              class="whatsapp-link"
+              href="https://wa.me/51973336306?text=Hola%2C%20quisiera%20informaci%C3%B3n%20sobre%20sus%20servicios."
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Escribir a Rosas de Guadalupe por WhatsApp"
+              title="Escríbenos por WhatsApp"
+            >
+              <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+                <path d="M16 3.5a12.2 12.2 0 0 0-10.4 18.6L4 28l6.1-1.6A12.2 12.2 0 1 0 16 3.5Z" fill="none" stroke="#FFFFFF" stroke-linejoin="round" stroke-width="2" />
+                <path d="M11.2 9.4c-.5 0-1.1.2-1.5.7-.5.5-1.8 1.7-1.8 4.1s1.8 4.8 2 5.1c.2.3 3.4 5.3 8.3 7.2 4.1 1.6 4.9 1.3 5.8 1.2.9-.1 2.9-1.2 3.3-2.4.4-1.2.4-2.2.3-2.4-.1-.2-.5-.3-1-.6-.5-.3-3-1.5-3.5-1.7-.5-.2-.8-.3-1.2.3-.4.6-1.3 1.7-1.6 2-.3.3-.6.4-1.1.1-.5-.3-2.1-.8-4-2.5-1.5-1.3-2.5-3-2.8-3.5-.3-.5 0-.8.2-1.1.2-.2.5-.6.8-.9.3-.3.4-.5.5-.8.2-.3.1-.6 0-.9-.1-.3-1.2-2.8-1.7-3.8-.4-.9-.9-.8-1.2-.8h-.8Z" />
+              </svg>
+            </a>
+          </div>
           <p class="brand-tagline">Mariachi Femenino • Plataforma de Gestión y Reservas</p>
         </div>
       </div>
@@ -234,25 +249,6 @@
               <textarea id="details-input" name="detalles" class="form-control" rows="5" maxlength="500" placeholder="Cuéntanos si necesitas algún servicio adicional u otro detalle para tu evento."></textarea>
             </div>
 
-            <div class="form-group">
-              <label for="payment-method-mercadopago">Método de pago</label>
-              <div class="payment-methods-grid">
-                <label class="payment-card selected">
-                  <input type="radio" id="payment-method-mercadopago" name="payment-method" value="MERCADOPAGO" checked>
-                  <div class="method-info">
-                    <span class="method-title">Mercado Pago</span>
-                    <span class="method-fee">Tarjetas y medios disponibles en Checkout Pro</span>
-                  </div>
-                </label>
-                <label class="payment-card">
-                  <input type="radio" name="payment-method" value="PRUEBA">
-                  <div class="method-info">
-                    <span class="method-title">Prueba</span>
-                    <span class="method-fee">El contrato completo cuesta S/ 1.00</span>
-                  </div>
-                </label>
-              </div>
-            </div>
           </form>
         </div>
 
@@ -280,27 +276,27 @@
               <hr class="divider">
               <div class="breakdown-row alert-row">
                 <div>
-                  <strong id="summary-advance-label">Anticipo para Bloqueo de Fecha (50%):</strong>
-                  <small class="block-hint">Requerido para apartar la agenda</small>
+                  <strong id="summary-advance-label">Anticipo pendiente de coordinación (50%):</strong>
+                  <small class="block-hint">La administradora actualizará el estado al recibirlo</small>
                 </div>
                 <strong id="summary-advance" class="text-gold">S/ 340.00</strong>
               </div>
-              <div class="breakdown-row">
+              <div class="breakdown-row payment-only-row">
                 <span>Comisión de Pasarela (si aplica):</span>
                 <strong id="summary-fee">S/ 0.00</strong>
               </div>
-              <div class="breakdown-row total-pay-now">
+              <div class="breakdown-row total-pay-now payment-only-row">
                 <span>Total a Liquidar Hoy (Anticipo):</span>
                 <span id="summary-pay-now" class="amount-large">S/ 340.00</span>
               </div>
               <div class="breakdown-row settlement-row">
-                <span id="summary-balance-label">Saldo Pendiente al Llegar al Evento (50%):</span>
+                <span id="summary-balance-label">Saldo pendiente de coordinación (50%):</span>
                 <strong id="summary-balance">S/ 340.00</strong>
               </div>
             </div>
             <div class="summary-actions">
               <button id="btn-proceed-booking" type="button" class="btn btn-accent full-width">
-                Pagar
+                Continuar con la reserva
               </button>
             </div>
           </div>
@@ -314,23 +310,23 @@
               <div><dt>Dirección</dt><dd id="contract-address"></dd></div>
               <div><dt>Fecha y hora</dt><dd id="contract-datetime"></dd></div>
               <div><dt>Detalles</dt><dd id="contract-notes"></dd></div>
-              <div><dt>Método elegido</dt><dd id="contract-payment"></dd></div>
+              <div><dt>Estado de la reserva</dt><dd id="contract-payment"></dd></div>
               <div><dt>Total del contrato</dt><dd id="contract-total"></dd></div>
-              <div><dt>Anticipo</dt><dd id="contract-advance"></dd></div>
-              <div><dt>Comisión de pasarela</dt><dd id="contract-fee"></dd></div>
-              <div><dt>Total a pagar hoy</dt><dd id="contract-pay-now"></dd></div>
+              <div><dt>Anticipo pendiente</dt><dd id="contract-advance"></dd></div>
+              <div class="payment-only-row"><dt>Comisión de pasarela</dt><dd id="contract-fee"></dd></div>
+              <div class="payment-only-row"><dt>Total a pagar hoy</dt><dd id="contract-pay-now"></dd></div>
               <div><dt>Saldo pendiente</dt><dd id="contract-balance"></dd></div>
             </dl>
 
             <div id="qr-payment-section" class="qr-payment-section">
-              <h4>Pago seguro</h4>
-              <p>Serás redirigido a Mercado Pago. La reserva se confirmará únicamente cuando recibamos la aprobación del pago.</p>
+              <h4>Confirmación por WhatsApp</h4>
+              <p>Al reservar, guardaremos el contrato pendiente y abriremos un mensaje con sus datos para que lo envíes a la agrupación.</p>
             </div>
 
             <p id="contract-status" class="contract-status" role="status" aria-live="polite" hidden></p>
             <div class="summary-actions contract-actions">
-              <button id="btn-pay-contract" type="button" class="btn btn-accent full-width">
-                Pagar con Mercado Pago
+              <button id="btn-reserve-whatsapp" type="button" class="btn btn-accent full-width">
+                Reservar y abrir WhatsApp
               </button>
               <button id="btn-back-to-quote" type="button" class="btn btn-primary full-width">
                 Volver a la cotización
@@ -372,7 +368,7 @@
             <div><dt>Tipo de evento</dt><dd id="admin-detail-type"></dd></div>
             <div><dt>Estado</dt><dd id="admin-detail-status"></dd></div>
             <div><dt>Duración</dt><dd id="admin-detail-duration"></dd></div>
-            <div><dt>Método de pago</dt><dd id="admin-detail-payment"></dd></div>
+            <div><dt>Método registrado</dt><dd id="admin-detail-payment"></dd></div>
             <div><dt>Subtotal</dt><dd id="admin-detail-subtotal"></dd></div>
             <div><dt>Recargo</dt><dd id="admin-detail-surcharge"></dd></div>
             <div><dt>Total</dt><dd id="admin-detail-total"></dd></div>
@@ -380,6 +376,9 @@
             <div><dt>Saldo pendiente</dt><dd id="admin-detail-balance"></dd></div>
             <div><dt>Detalles</dt><dd id="admin-detail-notes"></dd></div>
           </dl>
+          <button id="admin-mark-paid" class="btn btn-accent full-width" type="button" hidden>
+            Marcar anticipo del 50% como pagado
+          </button>
         </section>
       </section>
     </main>

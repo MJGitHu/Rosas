@@ -79,6 +79,41 @@ body {
   color: var(--secondary-light);
 }
 
+.brand-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.whatsapp-link {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #25D366;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.whatsapp-link:hover,
+.whatsapp-link:focus-visible {
+  background: #1DA851;
+  transform: translateY(-1px);
+}
+
+.whatsapp-link:focus-visible {
+  outline: 3px solid rgba(37, 211, 102, 0.35);
+  outline-offset: 3px;
+}
+
+.whatsapp-link svg {
+  width: 23px;
+  height: 23px;
+  fill: #FFFFFF;
+}
+
 .brand-tagline {
   font-size: 0.85rem;
   color: var(--text-muted);
@@ -389,6 +424,10 @@ textarea.form-control {
   display: none;
 }
 
+.payment-only-row {
+  display: none;
+}
+
 .contract-summary {
   display: flex;
   flex-direction: column;
@@ -632,7 +671,8 @@ textarea.form-control {
 
 #admin-dashboard[hidden],
 #admin-contract-details[hidden],
-.admin-status[hidden] {
+.admin-status[hidden],
+#admin-mark-paid[hidden] {
   display: none;
 }
 

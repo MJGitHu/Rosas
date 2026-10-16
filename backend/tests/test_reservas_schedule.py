@@ -143,12 +143,106 @@ def test_availability_endpoint_returns_conflict_without_exposing_contract(client
     assert "codigo_reserva" not in response.json
 
 
-def test_public_reservation_endpoint_cannot_bypass_verified_payment(client, monkeypatch):
+def test_public_reservation_endpoint_rejects_invalid_schedule_before_database(client, monkeypatch):
     def unexpected_database_access():
-        raise AssertionError("El endpoint público no debe guardar reservas.")
+        raise AssertionError("La reserva inválida no debe acceder a la base de datos.")
 
     monkeypatch.setattr(reservas_routes, "get_db_connection", unexpected_database_access)
-    response = client.post("/api/reservas/", json={"metodo_pago": "PRUEBA"})
+    event_day = (date.today() + timedelta(days=1)).isoformat()
+    response = client.post(
+        "/api/reservas/",
+        json={
+            "cliente": {
+                "nombre": "Elena",
+                "apellido": "Gómez",
+                "telefono": "999123456",
+                "email": "elena@example.test",
+            },
+            "servicio": "mariachi",
+            "duracion_minutos": 30,
+            "direccion_evento": "Av. Ejemplo 123",
+            "fecha_evento": event_day,
+            "hora_evento": "02:00",
+        },
+    )
 
-    assert response.status_code == 410
-    assert "después de verificar el pago" in response.json["message"]
+    assert response.status_code == 400
+    assert "11:00 y la 01:00" in response.json["message"]
+
+
+def test_public_reservation_saves_pending_contract_with_server_price(client, monkeypatch):
+    event_day = date.today() + timedelta(days=1)
+    statements = []
+
+    class Cursor:
+        rowcount = 1
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def execute(self, query, **parameters):
+            statements.append((query, parameters))
+            self.query = query
+
+        def fetchall(self):
+            return []
+
+        def fetchone(self):
+            if "SELECT id_formato" in self.query:
+                return (7,)
+            if "SELECT id_zona" in self.query:
+                return (8,)
+            if "SELECT id_cliente" in self.query:
+                return (9,)
+            return None
+
+    class Connection:
+        def cursor(self):
+            return Cursor()
+
+        def commit(self):
+            self.did_commit = True
+
+        def rollback(self):
+            self.did_rollback = True
+
+        def close(self):
+            pass
+
+    connection = Connection()
+    monkeypatch.setattr(reservas_routes, "get_db_connection", lambda: connection)
+    response = client.post(
+        "/api/reservas/",
+        json={
+            "cliente": {
+                "nombre": "Elena",
+                "apellido": "Gómez",
+                "telefono": "999123456",
+                "email": "elena@example.test",
+            },
+            "servicio": "mariachi",
+            "duracion_minutos": 30,
+            "direccion_evento": "Av. Ejemplo 123",
+            "fecha_evento": event_day.isoformat(),
+            "hora_evento": "14:00",
+            "detalles": "Confirmar repertorio",
+            "monto_total": 1,
+            "metodo_pago": "PRUEBA",
+        },
+    )
+
+    assert response.status_code == 201
+    assert response.json["data"]["estado"] == "COTIZADA"
+    assert response.json["data"]["monto_total"] == 380
+    assert response.json["data"]["anticipo_requerido"] == 190
+    insert, parameters = next(
+        entry for entry in statements if "INSERT INTO eventos_reservas" in entry[0]
+    )
+    assert "'COTIZADA'" in insert
+    assert "'PENDIENTE'" in insert
+    assert parameters["monto_total"] == 380
+    assert parameters["anticipo_requerido"] == 190
+    assert connection.did_commit

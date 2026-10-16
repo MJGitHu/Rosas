@@ -15,11 +15,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const summaryBadge = document.getElementById("summary-badge");
   const qrPaymentSection = document.getElementById("qr-payment-section");
   const contractStatus = document.getElementById("contract-status");
-  const btnPayContract = document.getElementById("btn-pay-contract");
+  const btnReserveWhatsapp = document.getElementById("btn-reserve-whatsapp");
   const paymentReturnStatus = document.getElementById("payment-return-status");
   const paymentRetryLink = document.getElementById("payment-retry-link");
   const btnBackToQuote = document.getElementById("btn-back-to-quote");
-  const paymentCards = document.querySelectorAll(".payment-card");
   const btnProceed = document.getElementById("btn-proceed-booking");
   const apiStatusBadge = document.getElementById("api-status-badge");
   const adminSessionButton = document.getElementById("admin-session-button");
@@ -31,10 +30,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const calendarGrid = document.getElementById("calendar-grid");
   const calendarMonthLabel = document.getElementById("calendar-month-label");
   const adminContractDetails = document.getElementById("admin-contract-details");
+  const adminMarkPaidButton = document.getElementById("admin-mark-paid");
   let adminCsrfToken = "";
   let calendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
   let adminReservations = [];
   let availabilityRequestId = 0;
+  let selectedAdminReservation = null;
 
   // Campos de desglose
   const summarySubtotal = document.getElementById("summary-subtotal");
@@ -114,26 +115,38 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // Manejo de selección de método de pago
-  paymentCards.forEach((card) => {
-    card.addEventListener("click", () => {
-      if (!contractSummary.hidden) return;
-      paymentCards.forEach((c) => c.classList.remove("selected"));
-      card.classList.add("selected");
-      const radio = card.querySelector('input[type="radio"]');
-      if (radio) radio.checked = true;
-      calculateQuote();
-    });
-  });
-
-  const getSelectedPaymentMethod = () => {
-    const checked = document.querySelector('input[name="payment-method"]:checked');
-    return checked ? checked.value : "MERCADOPAGO";
-  };
-
   const paymentLabels = {
     MERCADOPAGO: "Mercado Pago",
     PRUEBA: "Prueba (S/ 1.00)",
+    PENDIENTE: "Sin método registrado",
+  };
+
+  // Keep Checkout Pro available for later; the current reservation flow does not invoke it.
+  const startMercadoPagoPayment = async () => {
+    const response = await fetch("/api/pagos/preferencias", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        cliente: {
+          nombre: document.getElementById("client-first-name").value.trim(),
+          apellido: document.getElementById("client-last-name").value.trim(),
+          telefono: document.getElementById("client-phone").value.trim(),
+          email: document.getElementById("client-email").value.trim(),
+        },
+        servicio: formatSelect.value,
+        duracion_minutos: parseInt(durationSelect.value, 10),
+        direccion_evento: document.getElementById("event-address").value.trim(),
+        fecha_evento: eventDateInput.value,
+        hora_evento: eventTimeInput.value,
+        detalles: document.getElementById("details-input").value.trim(),
+        metodo_pago: "MERCADOPAGO",
+      }),
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || "No se pudo iniciar el pago.");
+    }
+    window.location.assign(result.data.init_point);
   };
 
   const formatDuration = (minutes) => {
@@ -148,7 +161,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const showContractSummary = () => {
     const selectedFormat = formatSelect.options[formatSelect.selectedIndex];
     const totalMinutes = parseInt(durationSelect.value, 10);
-    const paymentMethod = getSelectedPaymentMethod();
     const clientName = [
       document.getElementById("client-first-name").value.trim(),
       document.getElementById("client-last-name").value.trim(),
@@ -171,13 +183,11 @@ document.addEventListener("DOMContentLoaded", () => {
       `${eventDate} · ${document.getElementById("event-time").value}`;
     document.getElementById("contract-notes").textContent =
       document.getElementById("details-input").value.trim() || "Sin detalles adicionales";
-    document.getElementById("contract-payment").textContent = paymentLabels[paymentMethod];
+    document.getElementById("contract-payment").textContent = "Pendiente de anticipo";
     document.getElementById("contract-total").textContent =
       summaryTotal.textContent;
     document.getElementById("contract-advance").textContent =
-      paymentMethod === "PRUEBA"
-        ? `${summaryAdvance.textContent} (pago total de prueba)`
-        : `${summaryAdvance.textContent} (anticipo requerido)`;
+      `${summaryAdvance.textContent} (50%)`;
     document.getElementById("contract-fee").textContent = summaryFee.textContent;
     document.getElementById("contract-pay-now").textContent = summaryPayNow.textContent;
     document.getElementById("contract-balance").textContent =
@@ -186,17 +196,16 @@ document.addEventListener("DOMContentLoaded", () => {
     qrPaymentSection.hidden = false;
     contractStatus.hidden = true;
     contractStatus.textContent = "";
-    btnPayContract.disabled = false;
-    btnPayContract.textContent = paymentMethod === "PRUEBA"
-      ? "Pagar S/ 1.00"
-      : "Pagar con Mercado Pago";
+    btnReserveWhatsapp.disabled = false;
+    btnReserveWhatsapp.hidden = false;
+    btnReserveWhatsapp.textContent = "Reservar y abrir WhatsApp";
     btnBackToQuote.hidden = false;
     Array.from(quoteForm.elements).forEach((control) => {
       control.disabled = true;
     });
 
     summaryHeading.textContent = "Resumen del contrato";
-    summaryBadge.textContent = paymentLabels[paymentMethod];
+    summaryBadge.textContent = "Pendiente de anticipo";
     financialSummary.hidden = true;
     contractSummary.hidden = false;
   };
@@ -207,11 +216,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectedDuration = durationSelect.value;
     const basePrice = parseFloat(selectedFormat.getAttribute(`data-price-${selectedDuration}`));
     const zoneSurcharge = 0;
-    const paymentMethod = getSelectedPaymentMethod();
-    if (paymentMethod === "PRUEBA") {
-      updateUI(1, 0, 1, 1, 0, 1, 0);
-      return;
-    }
 
     // Intentar consultar endpoint del backend Flask
     try {
@@ -223,7 +227,7 @@ document.addEventListener("DOMContentLoaded", () => {
           duracion_horas: parseInt(selectedDuration, 10) / 60,
           monto_base_formato: basePrice,
           recargo_zona: zoneSurcharge,
-          metodo_pago: paymentMethod,
+          metodo_pago: "PENDIENTE",
         }),
       });
 
@@ -252,10 +256,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const balance = total - advance;
 
     let fee = 0;
-    if (paymentMethod === "TARJETA_CREDITO" || paymentMethod === "TARJETA_DEBITO") {
-      fee = Math.round(advance * 0.05 * 100) / 100;
-    }
-
     const payNow = advance + fee;
 
     updateUI(subtotal, zoneSurcharge, total, advance, fee, payNow, balance);
@@ -269,13 +269,10 @@ document.addEventListener("DOMContentLoaded", () => {
     summaryFee.textContent = formatearSoles(fee);
     summaryPayNow.textContent = formatearSoles(payNow);
     summaryBalance.textContent = formatearSoles(balance);
-    const isTestPayment = getSelectedPaymentMethod() === "PRUEBA";
-    document.getElementById("summary-advance-label").textContent = isTestPayment
-      ? "Pago total de prueba:"
-      : "Anticipo para Bloqueo de Fecha (50%):";
-    document.getElementById("summary-balance-label").textContent = isTestPayment
-      ? "Saldo pendiente:"
-      : "Saldo Pendiente al Llegar al Evento (50%):";
+    document.getElementById("summary-advance-label").textContent =
+      "Anticipo pendiente de coordinación (50%):";
+    document.getElementById("summary-balance-label").textContent =
+      "Saldo pendiente de coordinación (50%):";
   };
 
   // Verificación de estado del Backend Flask
@@ -308,6 +305,8 @@ document.addEventListener("DOMContentLoaded", () => {
     );
     if (!enabled) {
       adminContractDetails.hidden = true;
+      adminMarkPaidButton.hidden = true;
+      selectedAdminReservation = null;
     }
   };
 
@@ -329,6 +328,7 @@ document.addEventListener("DOMContentLoaded", () => {
     `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 
   const showReservationDetails = (reservation) => {
+    selectedAdminReservation = reservation;
     const fullName = `${reservation.nombre} ${reservation.apellido}`.trim();
     const [year, month, day] = reservation.fecha_evento.split("-").map(Number);
     const formattedDate = new Date(year, month - 1, day).toLocaleDateString("es-PE", {
@@ -345,7 +345,11 @@ document.addEventListener("DOMContentLoaded", () => {
       "admin-detail-datetime": `${formattedDate} · ${reservation.hora_inicio}`,
       "admin-detail-address": reservation.direccion_evento,
       "admin-detail-type": reservation.tipo_evento || "No especificado",
-      "admin-detail-status": reservation.estado,
+      "admin-detail-status": reservation.estado === "COTIZADA"
+        ? "Pendiente"
+        : reservation.estado === "ANTICIPO_PAGADO"
+          ? "Pagado (anticipo 50%)"
+          : reservation.estado,
       "admin-detail-duration": formatDuration(durationMinutes),
       "admin-detail-payment": paymentLabels[reservation.metodo_pago] || reservation.metodo_pago,
       "admin-detail-subtotal": formatearSoles(reservation.subtotal),
@@ -358,6 +362,8 @@ document.addEventListener("DOMContentLoaded", () => {
     Object.entries(detailValues).forEach(([id, value]) => {
       document.getElementById(id).textContent = value ?? "—";
     });
+    adminMarkPaidButton.hidden = reservation.estado !== "COTIZADA";
+    adminMarkPaidButton.disabled = false;
     adminContractDetails.hidden = false;
   };
 
@@ -402,8 +408,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const eventButton = document.createElement("button");
         eventButton.type = "button";
         eventButton.className = "calendar-event";
-        eventButton.textContent =
-          `${reservation.hora_inicio} · ${reservation.nombre} ${reservation.apellido}`;
+        const statusLabel = reservation.estado === "COTIZADA"
+          ? "Pendiente"
+          : reservation.estado === "ANTICIPO_PAGADO"
+            ? "Anticipo pagado"
+            : reservation.estado;
+        eventButton.textContent = `${reservation.hora_inicio} · ${reservation.nombre} ${reservation.apellido} · ${statusLabel}`;
         eventButton.title = `${reservation.codigo_reserva}: ${reservation.nombre} ${reservation.apellido}`;
         eventButton.addEventListener("click", () => showReservationDetails(reservation));
         cell.append(eventButton);
@@ -516,6 +526,31 @@ document.addEventListener("DOMContentLoaded", () => {
     loadCalendar();
   });
 
+  adminMarkPaidButton.addEventListener("click", async () => {
+    if (!selectedAdminReservation || selectedAdminReservation.estado !== "COTIZADA") return;
+
+    adminMarkPaidButton.disabled = true;
+    displayAdminStatus("Actualizando el estado del anticipo...");
+    try {
+      const response = await fetch(
+        `/api/admin/reservas/${encodeURIComponent(selectedAdminReservation.codigo_reserva)}/marcar-pagado`,
+        {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "X-CSRF-Token": adminCsrfToken },
+        }
+      );
+      const result = await apiMessage(response, "No se pudo actualizar el estado.");
+      selectedAdminReservation.estado = result.data.estado;
+      showReservationDetails(selectedAdminReservation);
+      renderCalendar();
+      displayAdminStatus("Anticipo del 50% marcado como pagado.");
+    } catch (error) {
+      adminMarkPaidButton.disabled = false;
+      displayAdminStatus(error.message, true);
+    }
+  });
+
   // Event Listeners
   formatSelect.addEventListener("change", calculateQuote);
   durationSelect.addEventListener("change", calculateQuote);
@@ -537,14 +572,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  btnPayContract.addEventListener("click", async () => {
-    btnPayContract.disabled = true;
-    btnPayContract.textContent = "Conectando con Mercado Pago...";
+  btnReserveWhatsapp.addEventListener("click", async () => {
+    const whatsappWindow = window.open("about:blank", "_blank");
+    btnReserveWhatsapp.disabled = true;
+    btnReserveWhatsapp.textContent = "Guardando la reserva...";
     contractStatus.hidden = true;
     contractStatus.textContent = "";
 
     try {
-      const response = await fetch("/api/pagos/preferencias", {
+      const response = await fetch("/api/reservas/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -560,23 +596,61 @@ document.addEventListener("DOMContentLoaded", () => {
           fecha_evento: eventDateInput.value,
           hora_evento: eventTimeInput.value,
           detalles: document.getElementById("details-input").value.trim(),
-          metodo_pago: getSelectedPaymentMethod(),
         }),
       });
       const result = await response.json();
       if (!response.ok) {
-        throw new Error(result.message || "No se pudo iniciar el pago.");
+        throw new Error(result.message || "No se pudo guardar la reserva.");
       }
 
-      window.location.assign(result.data.init_point);
-    } catch (error) {
+      const reservation = result.data;
+      const fullName = [
+        document.getElementById("client-first-name").value.trim(),
+        document.getElementById("client-last-name").value.trim(),
+      ].join(" ");
+      const [year, month, day] = eventDateInput.value.split("-").map(Number);
+      const formattedDate = new Date(year, month - 1, day).toLocaleDateString("es-PE", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      const notes = document.getElementById("details-input").value.trim();
+      const message = [
+        "Hola, hice una reserva con los siguientes datos:",
+        `Código de reserva: ${reservation.codigo_reserva}`,
+        `Nombre: ${fullName}`,
+        `Teléfono: ${document.getElementById("client-phone").value.trim()}`,
+        `Correo: ${document.getElementById("client-email").value.trim()}`,
+        `Servicio: ${formatSelect.options[formatSelect.selectedIndex].textContent.trim()}`,
+        `Duración: ${formatDuration(parseInt(durationSelect.value, 10))}`,
+        `Fecha y hora: ${formattedDate} · ${eventTimeInput.value}`,
+        `Dirección: ${document.getElementById("event-address").value.trim()}`,
+        `Detalles: ${notes || "Sin detalles adicionales"}`,
+        `Total: ${formatearSoles(reservation.monto_total)}`,
+        `Anticipo pendiente (50%): ${formatearSoles(reservation.anticipo_requerido)}`,
+        `Saldo pendiente (50%): ${formatearSoles(reservation.saldo_pendiente)}`,
+      ].join("\n");
+      const whatsappUrl =
+        `https://wa.me/51973336306?text=${encodeURIComponent(message)}`;
+      if (whatsappWindow) {
+        whatsappWindow.opener = null;
+        whatsappWindow.location.href = whatsappUrl;
+      } else {
+        window.location.assign(whatsappUrl);
+      }
+
       contractStatus.textContent =
-        `No se pudo iniciar el pago: ${error.message}`;
+        `Reserva ${reservation.codigo_reserva} guardada como pendiente. Confirma el envío del mensaje en WhatsApp.`;
       contractStatus.hidden = false;
-      btnPayContract.disabled = false;
-      btnPayContract.textContent = getSelectedPaymentMethod() === "PRUEBA"
-        ? "Reintentar pago de S/ 1.00"
-        : "Reintentar pago con Mercado Pago";
+      btnReserveWhatsapp.textContent = "Reserva guardada";
+      btnReserveWhatsapp.hidden = true;
+      btnBackToQuote.hidden = true;
+    } catch (error) {
+      if (whatsappWindow) whatsappWindow.close();
+      contractStatus.textContent = `No se pudo guardar la reserva: ${error.message}`;
+      contractStatus.hidden = false;
+      btnReserveWhatsapp.disabled = false;
+      btnReserveWhatsapp.textContent = "Reintentar reserva";
     }
   });
 

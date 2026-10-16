@@ -9,6 +9,7 @@ load_dotenv()
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY")
     DEBUG = os.getenv("FLASK_DEBUG", "1") == "1"
+    FLASK_ENV = os.getenv("FLASK_ENV", "development")
     PORT = int(os.getenv("PORT", 5000))
     ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "")
     ADMIN_PASSWORD_HASH = os.getenv("ADMIN_PASSWORD_HASH", "")

@@ -14,6 +14,7 @@ class TestConfig:
     ADMIN_PASSWORD_HASH = generate_password_hash("admin-password")
     SESSION_COOKIE_SECURE = False
     FRONTEND_ORIGINS = []
+    FLASK_ENV = "development"
 
 
 @pytest.fixture
@@ -56,6 +57,108 @@ def test_login_sets_session_and_logout_requires_csrf(client):
     assert client.get("/api/admin/session").json["authenticated"] is False
 
 
+def test_admin_can_mark_pending_contract_advance_as_paid(client, monkeypatch):
+    class Cursor:
+        rowcount = 1
+        query = ""
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def execute(self, query, **parameters):
+            self.query = query
+            self.parameters = parameters
+
+    class Connection:
+        def __init__(self):
+            self.test_cursor = Cursor()
+            self.did_commit = False
+
+        def cursor(self):
+            return self.test_cursor
+
+        def commit(self):
+            self.did_commit = True
+
+        def rollback(self):
+            raise AssertionError("No se esperaba rollback.")
+
+        def close(self):
+            pass
+
+    connection = Connection()
+    monkeypatch.setattr(admin_routes, "get_db_connection", lambda: connection)
+    csrf_token = sign_in(client).json["csrf_token"]
+
+    response = client.post(
+        "/api/admin/reservas/RS-20261016-ABC123/marcar-pagado",
+        headers={"X-CSRF-Token": csrf_token},
+    )
+
+    assert response.status_code == 200
+    assert response.json["data"]["estado"] == "ANTICIPO_PAGADO"
+    assert response.json["data"]["mensaje"] == "Anticipo del 50% marcado como pagado."
+    assert "estado_reserva = 'ANTICIPO_PAGADO'" in connection.test_cursor.query
+    assert "estado_reserva = 'COTIZADA'" in connection.test_cursor.query
+    assert connection.did_commit
+
+
+def test_admin_cannot_mark_contract_paid_without_csrf(client, monkeypatch):
+    def unexpected_connection():
+        raise AssertionError("Debe validar CSRF antes de acceder a Oracle.")
+
+    monkeypatch.setattr(admin_routes, "get_db_connection", unexpected_connection)
+    sign_in(client)
+
+    response = client.post("/api/admin/reservas/RS-20261016-ABC123/marcar-pagado")
+
+    assert response.status_code == 403
+    assert response.json["message"] == "Token de seguridad inválido."
+
+
+def test_admin_cannot_mark_non_pending_contract_paid(client, monkeypatch):
+    class Cursor:
+        rowcount = 0
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def execute(self, _query, **_parameters):
+            pass
+
+    class Connection:
+        def cursor(self):
+            return Cursor()
+
+        def commit(self):
+            raise AssertionError("No debe confirmar si no hay fila pendiente.")
+
+        def rollback(self):
+            self.did_rollback = True
+
+        def close(self):
+            pass
+
+    connection = Connection()
+    monkeypatch.setattr(admin_routes, "get_db_connection", lambda: connection)
+    csrf_token = sign_in(client).json["csrf_token"]
+
+    response = client.post(
+        "/api/admin/reservas/RS-20261016-ABC123/marcar-pagado",
+        headers={"X-CSRF-Token": csrf_token},
+    )
+
+    assert response.status_code == 409
+    assert "contrato pendiente" in response.json["message"]
+    assert connection.did_rollback
+
+
 def test_login_rejects_invalid_credentials(client):
     response = client.post(
         "/api/admin/login",
@@ -63,6 +166,51 @@ def test_login_rejects_invalid_credentials(client):
     )
     assert response.status_code == 401
     assert response.json["message"] == "Usuario o contraseña incorrectos."
+
+
+def test_development_login_accepts_origin_matching_forwarded_tunnel_host(client):
+    response = client.post(
+        "/api/admin/login",
+        json={"username": "administradora", "password": "admin-password"},
+        headers={
+            "Origin": "https://unique-name.loca.lt",
+            "X-Forwarded-Host": "unique-name.loca.lt",
+            "X-Forwarded-Proto": "https",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json["authenticated"] is True
+
+
+def test_development_login_rejects_unrelated_origin(client):
+    response = client.post(
+        "/api/admin/login",
+        json={"username": "administradora", "password": "admin-password"},
+        headers={
+            "Origin": "https://attacker.example",
+            "X-Forwarded-Host": "unique-name.loca.lt",
+            "X-Forwarded-Proto": "https",
+        },
+    )
+
+    assert response.status_code == 403
+    assert response.json["message"] == "Origen no permitido."
+
+
+def test_production_login_does_not_trust_forwarded_tunnel_host(client):
+    client.application.config["FLASK_ENV"] = "production"
+    response = client.post(
+        "/api/admin/login",
+        json={"username": "administradora", "password": "admin-password"},
+        headers={
+            "Origin": "https://unique-name.loca.lt",
+            "X-Forwarded-Host": "unique-name.loca.lt",
+            "X-Forwarded-Proto": "https",
+        },
+    )
+
+    assert response.status_code == 403
 
 
 def test_login_is_disabled_when_admin_credentials_are_not_configured(client):

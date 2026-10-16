@@ -5,6 +5,7 @@ import logging
 import secrets
 import threading
 import time
+from urllib.parse import urlsplit
 
 import oracledb
 from flask import Blueprint, current_app, jsonify, request, session
@@ -32,9 +33,40 @@ def _configuration_ready():
 
 def _origin_allowed():
     origin = request.headers.get("Origin")
-    return not origin or origin in current_app.config["FRONTEND_ORIGINS"] or (
-        origin == request.host_url.rstrip("/")
+    if not origin:
+        return True
+    if origin in current_app.config["FRONTEND_ORIGINS"]:
+        return True
+    if origin == request.host_url.rstrip("/"):
+        return True
+    if current_app.config.get("FLASK_ENV", "").lower() != "development":
+        return False
+
+    parsed_origin = urlsplit(origin)
+    if parsed_origin.scheme not in {"http", "https"} or not parsed_origin.hostname:
+        return False
+
+    forwarded_host = request.headers.get("X-Forwarded-Host", "").split(",", 1)[0].strip()
+    if not forwarded_host:
+        return False
+    forwarded_proto = (
+        request.headers.get("X-Forwarded-Proto", "").split(",", 1)[0].strip().lower()
+        or request.scheme
     )
+    if forwarded_proto not in {"http", "https"}:
+        return False
+    try:
+        forwarded_origin = urlsplit(f"{forwarded_proto}://{forwarded_host}")
+        return (
+            forwarded_origin.hostname is not None
+            and parsed_origin.scheme == forwarded_origin.scheme
+            and parsed_origin.netloc.casefold() == forwarded_origin.netloc.casefold()
+            and not parsed_origin.path
+            and not parsed_origin.query
+            and not parsed_origin.fragment
+        )
+    except ValueError:
+        return False
 
 
 def _login_rate_limited(client_ip):
@@ -167,6 +199,70 @@ def logout():
         return jsonify({"status": "error", "message": "Token de seguridad inválido."}), 403
     session.clear()
     return jsonify({"authenticated": False})
+
+
+@admin_bp.route("/reservas/<codigo_reserva>/marcar-pagado", methods=["POST"])
+@admin_required
+def marcar_reserva_pagada(codigo_reserva):
+    if not _origin_allowed():
+        return jsonify({"status": "error", "message": "Origen no permitido."}), 403
+    csrf_token = request.headers.get("X-CSRF-Token", "")
+    if not hmac.compare_digest(
+        csrf_token.encode("utf-8"),
+        session.get("csrf_token", "").encode("utf-8"),
+    ):
+        return jsonify({"status": "error", "message": "Token de seguridad inválido."}), 403
+
+    try:
+        conn = get_db_connection()
+    except oracledb.Error:
+        logger.exception("No se pudo conectar a Oracle para actualizar el estado del contrato.")
+        return jsonify({
+            "status": "error",
+            "message": "No se pudo conectar a la base de datos.",
+        }), 503
+    if conn is None:
+        return jsonify({
+            "status": "error",
+            "message": "La base de datos no está disponible.",
+        }), 503
+
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE eventos_reservas
+                SET estado_reserva = 'ANTICIPO_PAGADO'
+                WHERE codigo_reserva = :codigo_reserva
+                  AND estado_reserva = 'COTIZADA'
+                """,
+                codigo_reserva=codigo_reserva,
+            )
+            if cursor.rowcount != 1:
+                conn.rollback()
+                return jsonify({
+                    "status": "error",
+                    "message": "No se encontró un contrato pendiente para actualizar.",
+                }), 409
+        conn.commit()
+    except oracledb.Error:
+        conn.rollback()
+        logger.exception("No se pudo marcar como pagado el contrato %s.", codigo_reserva)
+        return jsonify({
+            "status": "error",
+            "message": "No se pudo actualizar el estado del contrato.",
+        }), 500
+    finally:
+        conn.close()
+
+    return jsonify({
+        "status": "success",
+        "data": {
+            "codigo_reserva": codigo_reserva,
+            "estado": "ANTICIPO_PAGADO",
+            "mensaje": "Anticipo del 50% marcado como pagado.",
+        },
+    }), 200
 
 
 @admin_bp.route("/reservas", methods=["GET"])

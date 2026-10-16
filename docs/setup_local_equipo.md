@@ -217,6 +217,7 @@ SESSION_COOKIE_SECURE=0
 MERCADOPAGO_ACCESS_TOKEN=PEGA_AQUI_EL_TOKEN_DEL_ENTORNO_ELEGIDO
 MERCADOPAGO_WEBHOOK_URL=https://TU_DOMINIO/api/webhooks/mercadopago
 MERCADOPAGO_WEBHOOK_SECRET=PEGA_AQUI_LA_CLAVE_SECRETA_DEL_WEBHOOK
+FLASK_ENV=development
 ```
 
 En el panel de Mercado Pago, configura el evento **Pagos** para la URL HTTPS indicada y copia su clave secreta a `MERCADOPAGO_WEBHOOK_SECRET`. El endpoint `/api/webhooks/mercadopago` acepta `POST`; las notificaciones `merchant_order` se reconocen y responden `200`, mientras que la reserva solo se crea tras verificar un pago aprobado. La URL debe apuntar al backend público. El retorno del checkout usa el mismo dominio de esa URL y la ruta raíz de la aplicación. No utilices `localhost` como webhook. También se conserva `/api/pagos/webhook` por compatibilidad.
@@ -224,6 +225,8 @@ En el panel de Mercado Pago, configura el evento **Pagos** para la URL HTTPS ind
 El token productivo crea cobros reales: la opción **Prueba** también inicia un cobro real de S/ 1.00 cuando se configura un token productivo. Para validar sin cobrar, configura credenciales y eventos de prueba de Mercado Pago.
 
 La clave secreta y el hash deben ser únicos por entorno. No pongas la contraseña de administración en `.env`: guarda solo su hash. En el Paso 6 se generan ambos valores; copia cada resultado en su variable correspondiente antes de iniciar Flask. La cuenta configurada en `ADMIN_USERNAME` es la única cuenta administrativa: no existe registro ni creación de usuarios desde la web. En desarrollo local por HTTP, deja `SESSION_COOKIE_SECURE=0`; para publicar bajo HTTPS, usa `SESSION_COOKIE_SECURE=1` y `FLASK_DEBUG=0`.
+
+Para usar un túnel cambiante como localtunnel durante desarrollo, configura `FLASK_ENV=development` y reinicia Flask. El login administrativo aceptará dinámicamente el origen HTTPS si coincide con `X-Forwarded-Host` y `X-Forwarded-Proto` que envía el túnel; no se habilita CORS para todos los orígenes. Esta excepción solo se aplica al login en desarrollo; no uses `FLASK_ENV=development` en producción.
 
 ---
 

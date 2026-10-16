@@ -1,5 +1,7 @@
 from datetime import date, datetime, time, timedelta
 import logging
+import re
+import uuid
 
 import oracledb
 from flask import Blueprint, request, jsonify
@@ -107,10 +109,196 @@ def _find_schedule_conflict(cursor, event_start, duration_minutes, exclude_refer
 
 @reservas_bp.route("/", methods=["POST"])
 def crear_reserva():
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"status": "error", "message": "El cuerpo de la solicitud debe ser JSON."}), 400
+
+    cliente = data.get("cliente")
+    if not isinstance(cliente, dict):
+        return jsonify({"status": "error", "message": "Faltan los datos del cliente."}), 400
+
+    for field, max_length in {
+        "nombre": 100,
+        "apellido": 100,
+        "telefono": 20,
+        "email": 120,
+    }.items():
+        value = cliente.get(field)
+        if not isinstance(value, str) or not value.strip() or len(value.strip()) > max_length:
+            return jsonify({
+                "status": "error",
+                "message": f"El campo {field} es obligatorio y no puede exceder {max_length} caracteres.",
+            }), 400
+
+    email = cliente["email"].strip().lower()
+    if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
+        return jsonify({"status": "error", "message": "Ingresa un correo electrónico válido."}), 400
+
+    service_key = data.get("servicio")
+    service = FORMATOS.get(service_key) if isinstance(service_key, str) else None
+    if service is None:
+        return jsonify({"status": "error", "message": "Selecciona un formato válido."}), 400
+
+    try:
+        event_start, duration_minutes = _parse_schedule(
+            data.get("fecha_evento"),
+            data.get("hora_evento"),
+            data.get("duracion_minutos"),
+        )
+    except ValueError as error:
+        return jsonify({"status": "error", "message": str(error)}), 400
+
+    address = data.get("direccion_evento")
+    details = data.get("detalles", "")
+    if not isinstance(address, str) or not address.strip() or len(address.strip()) > 250:
+        return jsonify({
+            "status": "error",
+            "message": "La dirección es obligatoria y no puede exceder 250 caracteres.",
+        }), 400
+    if not isinstance(details, str) or len(details.strip()) > 500:
+        return jsonify({
+            "status": "error",
+            "message": "Los detalles no pueden exceder 500 caracteres.",
+        }), 400
+
+    subtotal = round(service["precios"][duration_minutes], 2)
+    advance = round(subtotal * 0.5, 2)
+    balance = round(subtotal - advance, 2)
+    code = f"RS-{datetime.now():%Y%m%d}-{uuid.uuid4().hex[:6].upper()}"
+
+    try:
+        conn = get_db_connection()
+    except oracledb.Error:
+        logger.exception("No se pudo conectar a Oracle para guardar una reserva pendiente.")
+        return jsonify({
+            "status": "error",
+            "message": "No se pudo conectar a la base de datos. La reserva no se guardó.",
+        }), 503
+    if conn is None:
+        return jsonify({
+            "status": "error",
+            "message": "La base de datos no está disponible. La reserva no se guardó.",
+        }), 503
+
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("LOCK TABLE eventos_reservas IN EXCLUSIVE MODE")
+            cursor.execute("LOCK TABLE mercadopago_intents IN EXCLUSIVE MODE")
+            if _find_schedule_conflict(cursor, event_start, duration_minutes):
+                conn.rollback()
+                return _busy_schedule_response(), 409
+
+            cursor.execute(
+                """
+                SELECT id_formato
+                FROM formatos_mariachi
+                WHERE nombre_formato = :nombre_formato AND activo = 'S'
+                """,
+                nombre_formato=service["nombre"],
+            )
+            format_row = cursor.fetchone()
+            if format_row is None:
+                conn.rollback()
+                return jsonify({
+                    "status": "error",
+                    "message": "El catálogo de formatos no está actualizado.",
+                }), 409
+
+            cursor.execute(
+                """
+                SELECT id_zona
+                FROM zonas_cobertura
+                WHERE nombre_zona = 'Sin recargo por distancia' AND activo = 'S'
+                """
+            )
+            zone_row = cursor.fetchone()
+            if zone_row is None:
+                conn.rollback()
+                return jsonify({
+                    "status": "error",
+                    "message": "Falta la zona sin recargo en el catálogo.",
+                }), 409
+
+            cursor.execute(
+                """
+                MERGE INTO clientes c
+                USING (SELECT :email email FROM dual) incoming
+                   ON (c.email = incoming.email)
+                WHEN MATCHED THEN UPDATE SET
+                    nombre = :nombre,
+                    apellido = :apellido,
+                    telefono = :telefono
+                WHEN NOT MATCHED THEN INSERT (nombre, apellido, telefono, email)
+                VALUES (:nombre, :apellido, :telefono, :email)
+                """,
+                email=email,
+                nombre=cliente["nombre"].strip(),
+                apellido=cliente["apellido"].strip(),
+                telefono=cliente["telefono"].strip(),
+            )
+            cursor.execute(
+                "SELECT id_cliente FROM clientes WHERE email = :email",
+                email=email,
+            )
+            client_row = cursor.fetchone()
+            if client_row is None:
+                raise RuntimeError("No se pudo asociar el cliente con la reserva.")
+
+            cursor.execute(
+                """
+                INSERT INTO eventos_reservas (
+                    codigo_reserva, id_cliente, id_formato, id_zona,
+                    fecha_evento, hora_inicio, duracion_horas, direccion_evento,
+                    tipo_evento, estado_reserva, monto_subtotal, recargo_zona,
+                    monto_total, anticipo_requerido, saldo_pendiente,
+                    notas_logistica, metodo_pago_preferido
+                ) VALUES (
+                    :codigo_reserva, :id_cliente, :id_formato, :id_zona,
+                    :fecha_evento, :hora_inicio, :duracion_horas, :direccion_evento,
+                    'Contratación web', 'COTIZADA', :monto_subtotal, 0,
+                    :monto_total, :anticipo_requerido, :saldo_pendiente,
+                    :notas_logistica, 'PENDIENTE'
+                )
+                """,
+                codigo_reserva=code,
+                id_cliente=client_row[0],
+                id_formato=format_row[0],
+                id_zona=zone_row[0],
+                fecha_evento=datetime.combine(event_start.date(), datetime.min.time()),
+                hora_inicio=event_start.strftime("%H:%M"),
+                duracion_horas=duration_minutes / 60,
+                direccion_evento=address.strip(),
+                monto_subtotal=subtotal,
+                monto_total=subtotal,
+                anticipo_requerido=advance,
+                saldo_pendiente=balance,
+                notas_logistica=details.strip() or None,
+            )
+        conn.commit()
+    except oracledb.DatabaseError:
+        conn.rollback()
+        logger.exception("No se pudo guardar la reserva pendiente %s.", code)
+        return jsonify({
+            "status": "error",
+            "message": "Ocurrió un error al guardar la reserva.",
+        }), 500
+    except RuntimeError as error:
+        conn.rollback()
+        logger.exception("No se pudo completar la reserva pendiente %s.", code)
+        return jsonify({"status": "error", "message": str(error)}), 500
+    finally:
+        conn.close()
+
     return jsonify({
-        "status": "error",
-        "message": "Las reservas solo se confirman después de verificar el pago.",
-    }), 410
+        "status": "success",
+        "data": {
+            "codigo_reserva": code,
+            "estado": "COTIZADA",
+            "monto_total": subtotal,
+            "anticipo_requerido": advance,
+            "saldo_pendiente": balance,
+        },
+    }), 201
 
 
 def _busy_schedule_response():

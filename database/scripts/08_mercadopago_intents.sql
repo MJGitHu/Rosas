@@ -60,7 +60,7 @@ BEGIN
         ADD CONSTRAINT ck_reserva_metodo_pago
         CHECK (metodo_pago_preferido IN (
             'TRANSFERENCIA', 'EFECTIVO', 'TARJETA_CREDITO',
-            'MERCADOPAGO', 'PRUEBA'
+            'MERCADOPAGO', 'PRUEBA', 'PENDIENTE'
         ))
     ]';
 END;
