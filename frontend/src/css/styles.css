@@ -384,7 +384,8 @@ textarea.form-control {
 .contract-summary[hidden],
 .qr-payment-section[hidden],
 .contract-status[hidden],
-.contract-actions button[hidden] {
+.contract-actions button[hidden],
+#payment-retry-link[hidden] {
   display: none;
 }
 
@@ -750,6 +751,16 @@ textarea.form-control {
 
 .admin-status.error {
   background: #FFF0F0;
+  color: #9B1C31;
+}
+
+.schedule-status {
+  padding: 0.35rem 0;
+  color: #277245;
+  font-size: 0.88rem;
+}
+
+.schedule-status.unavailable {
   color: #9B1C31;
 }
 

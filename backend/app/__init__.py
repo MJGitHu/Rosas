@@ -40,10 +40,18 @@ def create_app(config_class=Config):
     from app.routes.cotizaciones import cotizaciones_bp
     from app.routes.reservas import reservas_bp
     from app.routes.admin import admin_bp
+    from app.routes.pagos import pagos_bp, recibir_webhook
     
     app.register_blueprint(cotizaciones_bp, url_prefix="/api/cotizaciones")
     app.register_blueprint(reservas_bp, url_prefix="/api/reservas")
     app.register_blueprint(admin_bp, url_prefix="/api/admin")
+    app.register_blueprint(pagos_bp, url_prefix="/api/pagos")
+    app.add_url_rule(
+        "/api/webhooks/mercadopago",
+        endpoint="mercadopago_webhook",
+        view_func=recibir_webhook,
+        methods=["POST"],
+    )
     
     @app.route("/api/health")
     def health_check():

@@ -91,7 +91,7 @@ Tienes dos formas sencillas de ejecutar los scripts: **Opción A (por terminal c
 
 ### Opción A: Por Terminal (PowerShell)
 
-Ubícate en la raíz del repositorio clonado y ejecuta los 6 scripts en orden secuencial:
+Ubícate en la raíz del repositorio clonado y ejecuta los scripts en orden secuencial:
 
 ```powershell
 Set-Location \ruta\a\rosas_de_guadalupe_mvp
@@ -108,6 +108,7 @@ SQL*Plus solicitará la contraseña sin mostrarla. En el prompt `SQL>`, ejecuta 
 @database/scripts/05_pagos_seed.sql
 @database/scripts/06_reserva_detalles_ddl_seed.sql
 @database/scripts/07_catalogo_servicios.sql
+@database/scripts/08_mercadopago_intents.sql
 ```
 
 ---
@@ -157,13 +158,15 @@ Tienes dos opciones para dejar la base de datos 100% actualizada:
   5. Luego abre y ejecuta `database/scripts/02_seed_data.sql`, `05_pagos_seed.sql` y `06_reserva_detalles_ddl_seed.sql` para tener los datos de prueba.
 
 * **Método Paso a Paso:**  
-  Abre y ejecuta con **`F5`** los scripts de la carpeta `database/scripts/` en orden del `01` al `06`:
+  Abre y ejecuta con **`F5`** los scripts de la carpeta `database/scripts/` en orden:
   1. `01_schema_ddl.sql`
   2. `02_seed_data.sql`
   3. `03_canciones_ddl.sql`
   4. `04_pagos_ddl.sql`
   5. `05_pagos_seed.sql`
   6. `06_reserva_detalles_ddl_seed.sql`
+  7. `07_catalogo_servicios.sql`
+  8. `08_mercadopago_intents.sql`
 
 #### 3. Verificar las Tablas Creadas
 En el panel izquierdo, despliega la conexión **`Rosas de Guadalupe - Local` &rarr; `Tablas (Tables)`** y haz clic en el ícono de **Refrescar (`↻`)**.
@@ -180,6 +183,7 @@ Debes ver las **11 tablas del sistema**:
 9. `RESERVA_CANCIONES`
 10. `RESERVA_INTEGRANTES`
 11. `ZONAS_COBERTURA`
+12. `MERCADOPAGO_INTENTS`
 
 *(Nota: Si ves tablas que empiezan por `ANNOTATIONS_%$`, son tablas internas de metadatos de Oracle 21c; no forman parte del sistema y se pueden ignorar).*
 
@@ -210,7 +214,14 @@ SECRET_KEY=PEGA_AQUI_UNA_CLAVE_ALEATORIA_DE_64_CARACTERES
 ADMIN_USERNAME=administradora
 ADMIN_PASSWORD_HASH=PEGA_AQUI_EL_HASH_GENERADO
 SESSION_COOKIE_SECURE=0
+MERCADOPAGO_ACCESS_TOKEN=PEGA_AQUI_EL_TOKEN_DEL_ENTORNO_ELEGIDO
+MERCADOPAGO_WEBHOOK_URL=https://TU_DOMINIO/api/webhooks/mercadopago
+MERCADOPAGO_WEBHOOK_SECRET=PEGA_AQUI_LA_CLAVE_SECRETA_DEL_WEBHOOK
 ```
+
+En el panel de Mercado Pago, configura el evento **Pagos** para la URL HTTPS indicada y copia su clave secreta a `MERCADOPAGO_WEBHOOK_SECRET`. El endpoint `/api/webhooks/mercadopago` acepta `POST`; las notificaciones `merchant_order` se reconocen y responden `200`, mientras que la reserva solo se crea tras verificar un pago aprobado. La URL debe apuntar al backend público. El retorno del checkout usa el mismo dominio de esa URL y la ruta raíz de la aplicación. No utilices `localhost` como webhook. También se conserva `/api/pagos/webhook` por compatibilidad.
+
+El token productivo crea cobros reales: la opción **Prueba** también inicia un cobro real de S/ 1.00 cuando se configura un token productivo. Para validar sin cobrar, configura credenciales y eventos de prueba de Mercado Pago.
 
 La clave secreta y el hash deben ser únicos por entorno. No pongas la contraseña de administración en `.env`: guarda solo su hash. En el Paso 6 se generan ambos valores; copia cada resultado en su variable correspondiente antes de iniciar Flask. La cuenta configurada en `ADMIN_USERNAME` es la única cuenta administrativa: no existe registro ni creación de usuarios desde la web. En desarrollo local por HTTP, deja `SESSION_COOKIE_SECURE=0`; para publicar bajo HTTPS, usa `SESSION_COOKIE_SECURE=1` y `FLASK_DEBUG=0`.
 
@@ -266,9 +277,9 @@ Invoke-RestMethod -Uri "http://localhost:5000/api/health" -Method GET
    * **`Backend: Conectado (Flask)`** (en verde/dorado).
 3. Para entrar a administración, pulsa **Sesión de administración** e inicia sesión con `ADMIN_USERNAME` y la contraseña cuyo hash configuraste. El calendario muestra únicamente contratos leídos de Oracle; si Oracle no está disponible, se informa el error y no se muestran datos ficticios.
 4. Prueba la calculadora interactiva de presupuestos:
-   * Todos los montos deben figurar en **Soles (S/)** (ejemplo: Subtotal `S/ 2,800.00`, Anticipo 50% `S/ 1,400.00`).
-   * Al seleccionar **Tarjeta Crédito / Débito**, debe aplicar exactamente el **5% de comisión** sobre el anticipo (+S/ 70.00).
-   * Al seleccionar **Transferencia Bancaria** o **Efectivo**, la comisión debe ser `S/ 0.00`.
+   * Los montos deben figurar en **Soles (S/)** y mostrar el anticipo del 50% para Mercado Pago.
+   * Al seleccionar **Prueba**, el total del contrato y el pago de hoy deben ser `S/ 1.00`, con saldo `S/ 0.00`.
+   * Para probar Checkout Pro, usa credenciales de prueba y un webhook HTTPS público. No hagas pruebas con el token productivo, porque genera cobros reales.
 
 ---
 

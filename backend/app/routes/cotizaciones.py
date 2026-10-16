@@ -13,7 +13,6 @@ def calcular():
     monto_base_formato = data.get("monto_base_formato")
     if monto_base_formato is not None:
         monto_base_formato = float(monto_base_formato)
-    recargo_duracion = float(data.get("recargo_duracion", 0.0))
     
     resultado = calcular_cotizacion(
         precio_base_hora,
@@ -21,7 +20,6 @@ def calcular():
         recargo_zona,
         metodo_pago,
         monto_base_formato,
-        recargo_duracion,
     )
     return jsonify({
         "status": "success",

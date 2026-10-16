@@ -15,17 +15,16 @@ Enlace al tablero: https://upao-team-e2081s7v.atlassian.net/jira/software/projec
 
 - **Selección de Servicios y Formatos**: Mariachi completo, Express 1, Express 2, Express dúo y Solista; cotización para duraciones de 30, 40 o 60 minutos.
 - **Detalles del Evento**: Campo de texto para describir servicios adicionales o solicitudes especiales.
-- **Horas Adicionales**: Se inician en 0; cada hora extra cuesta S/ 60 menos que la tarifa de 60 minutos del formato seleccionado.
+- **Agenda de Eventos**: Permite agendar entre las 11:00 y la 01:00; requiere 45 minutos libres entre el fin de un contrato y el siguiente.
 - **Datos del Evento**: Captura de dirección, fecha y hora, sin recargos por distancia por ahora.
-- **Resumen y reserva**: Muestra los datos del contrato; guardar una reserva en efectivo requiere conexión a Oracle.
+- **Resumen y reserva**: Muestra los datos del contrato; la cita se reserva después de confirmar el pago.
 - **Administración privada**: Inicio de sesión para una única administradora configurada en el servidor y calendario mensual de contratos con sus detalles.
-- **Pagos electrónicos**: Muestra un espacio reservado para QR; el procesamiento todavía no está integrado.
+- **Pagos electrónicos**: Checkout Pro de Mercado Pago confirma el pago antes de guardar la reserva. La opción Prueba cobra S/ 1 por el contrato completo.
 - **Calculadora en Tiempo Real**: Ajuste por duración de presentación y recálculo automático de honorarios.
 - **Gestión Financiera Escalonada (Regla 50/50)**:
   - Generación obligatoria del **Anticipo del 50%** para confirmar y bloquear la fecha en el calendario oficial.
   - Control del **Saldo Restante del 50%** a ser liquidado al arribo de la agrupación al evento.
-- **Desglose de Pasarelas y Comisiones**: Cálculo transparente de comisiones bancarias por pago con tarjeta de crédito/débito (+5%) vs. transferencias SPEI o efectivo (0%).
-- **Multi-métodos de Pago**: Integración conceptual y registro para Transferencia/SPEI, Tarjetas Bancarias y Efectivo.
+- **Pagos**: Checkout Pro ofrece los medios habilitados en la cuenta de Mercado Pago; el modo Prueba cobra S/ 1 por el contrato completo.
 - **Monitoreo de Elenco y Recursos**: Control de la asignación y disponibilidad de las 6 músicas que integran la agrupación.
 
 ---
@@ -83,8 +82,10 @@ cd rosas_de_guadalupe_mvp
    - `database/scripts/01_schema_ddl.sql` (Crea tablas, secuencias y constraints).
    - `database/scripts/02_seed_data.sql` (Inserta integrantes, formatos y tarifas).
    - `database/scripts/07_catalogo_servicios.sql` (Actualiza catálogos y prepara los campos requeridos por las reservas web).
+   - `database/scripts/08_mercadopago_intents.sql` (Crea la retención temporal de horarios y los registros idempotentes de pago).
 
 En bases de datos ya existentes, ejecuta `database/scripts/07_catalogo_servicios.sql` antes de guardar reservas desde la web. Puede volver a ejecutarse para corregir y actualizar los catálogos.
+Ejecuta también `database/scripts/08_mercadopago_intents.sql` para habilitar Checkout Pro.
 
 ### 3. Configurar el Entorno Backend (Flask)
 
@@ -114,7 +115,7 @@ En bases de datos ya existentes, ejecuta `database/scripts/07_catalogo_servicios
    ```
    Configura `ORACLE_USER`, `ORACLE_PASSWORD`, `ORACLE_HOST`, `ORACLE_PORT` y `ORACLE_SERVICE_NAME` con los datos de tu instancia. Usa una contraseña propia y no la compartas. El archivo `.env` está excluido de Git; no subas sus credenciales.
 
-5. Configura en `backend/.env` una `SECRET_KEY` aleatoria, `ADMIN_USERNAME` y un `ADMIN_PASSWORD_HASH` generado con Werkzeug. Consulta [`docs/setup_local_equipo.md`](docs/setup_local_equipo.md) para los comandos. Nunca uses una clave secreta de ejemplo ni guardes la contraseña en texto plano.
+5. Configura en `backend/.env` una `SECRET_KEY` aleatoria, `ADMIN_USERNAME` y un `ADMIN_PASSWORD_HASH` generado con Werkzeug. Añade además `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_URL` y `MERCADOPAGO_WEBHOOK_SECRET`; consulta [`docs/setup_local_equipo.md`](docs/setup_local_equipo.md). El token debe corresponder al entorno que quieras usar y la URL webhook debe ser HTTPS y accesible desde Internet. No compartas ni subas estas claves.
 6. Inicia el servidor Flask:
    ```bash
    python run.py

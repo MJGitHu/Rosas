@@ -42,6 +42,18 @@ PAYMENT_METHODS = [
         "label": "Tarjeta de Débito",
         "tasa_comision": 0.05,
         "descripcion": "Procesamiento vía pasarela con recargo del 5% sobre el anticipo"
+    },
+    {
+        "codigo": "MERCADOPAGO",
+        "label": "Mercado Pago",
+        "tasa_comision": 0.00,
+        "descripcion": "Pago en línea mediante Checkout Pro de Mercado Pago"
+    },
+    {
+        "codigo": "PRUEBA",
+        "label": "Prueba",
+        "tasa_comision": 0.00,
+        "descripcion": "Pago total de prueba por S/ 1.00"
     }
 ]
 
